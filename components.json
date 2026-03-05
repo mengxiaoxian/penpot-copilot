@@ -1,0 +1,240 @@
+
+[
+  {
+    "type": "SectionHeader",
+    "description": "区域标题，左侧为标题，右侧为'更多'链接，用于分隔不同内容区域。",
+    "category": "布局",
+    "slots": ["title", "moreText"],
+    "constraints": [
+      {
+        "field": "title",
+        "type": "string",
+        "required": true,
+        "maxLength": 10,
+        "description": "区域主标题，例如 '财富精选' 或 '特色榜单'。"
+      },
+      {
+        "field": "moreText",
+        "type": "string",
+        "required": false,
+        "maxLength": 4,
+        "description": "右侧的可点击链接文本，通常为 '更多'。"
+      }
+    ]
+  },
+  {
+    "type": "WealthProductCard",
+    "description": "财富精选产品卡片，用于展示高利率或包含多个卖点的特色存款、理财产品。",
+    "category": "理财",
+    "slots": ["title", "subtitle", "rate", "rateLabel", "tag1", "tag2", "buttonText"],
+    "constraints": [
+      {
+        "field": "title",
+        "type": "string",
+        "required": true,
+        "maxLength": 12,
+        "description": "产品主标题，例如 '通知存款'。"
+      },
+      {
+        "field": "subtitle",
+        "type": "string",
+        "required": false,
+        "maxLength": 25,
+        "description": "产品副标题或宣传语，例如 '过完年就要用的钱放这里'。"
+      },
+      {
+        "field": "rate",
+        "type": "string",
+        "required": true,
+        "maxLength": 8,
+        "description": "核心卖点利率或数值，例如 '0.75%'。"
+      },
+      {
+        "field": "rateLabel",
+        "type": "string",
+        "required": true,
+        "maxLength": 10,
+        "description": "核心卖点下方的标签，例如 '当前年利率'。"
+      },
+      {
+        "field": "tag1",
+        "type": "string",
+        "required": false,
+        "maxLength": 8,
+        "description": "产品特性标签1，位于利率右侧，例如 '当日计息'。"
+      },
+      {
+        "field": "tag2",
+        "type": "string",
+        "required": false,
+        "maxLength": 8,
+        "description": "产品特性标签2，位于利率右侧，例如 '本金有保障'。"
+      },
+      {
+        "field": "buttonText",
+        "type": "string",
+        "required": true,
+        "maxLength": 5,
+        "description": "右下角的操作按钮文本，例如 '去看看'。"
+      }
+    ]
+  },
+  {
+    "type": "SmallProductCard",
+    "description": "小型定期存款或理财产品卡片，通常并排展示多个。",
+    "category": "理财",
+    "slots": ["title", "rate", "rateLabel", "bottomText"],
+    "constraints": [
+      {
+        "field": "title",
+        "type": "string",
+        "required": true,
+        "maxLength": 8,
+        "description": "产品期限或名称，例如 '3个月定存'。"
+      },
+      {
+        "field": "rate",
+        "type": "string",
+        "required": true,
+        "maxLength": 8,
+        "description": "产品的年利率，例如 '1.00%'。"
+      },
+      {
+        "field": "rateLabel",
+        "type": "string",
+        "required": true,
+        "maxLength": 5,
+        "description": "利率下方的固定标签，例如 '年利率'。"
+      },
+      {
+        "field": "bottomText",
+        "type": "string",
+        "required": true,
+        "maxLength": 10,
+        "description": "卡片底部的说明文本，例如 '1000元起购' 或 '本金有保障'。"
+      }
+    ]
+  },
+  {
+    "type": "RankingItem",
+    "description": "特色榜单中的单个基金、策略或组合的列表项。",
+    "category": "基金",
+    "slots": ["tag", "title", "description"],
+    "constraints": [
+      {
+        "field": "tag",
+        "type": "string",
+        "required": true,
+        "maxLength": 4,
+        "description": "项目左侧的彩色标签文本，例如 '优中选优'。"
+      },
+      {
+        "field": "title",
+        "type": "string",
+        "required": true,
+        "maxLength": 15,
+        "description": "榜单项目的主标题，例如 '3322选基'。"
+      },
+      {
+        "field": "description",
+        "type": "string",
+        "required": true,
+        "maxLength": 30,
+        "description": "榜单项目的详细描述或业绩说明，例如 '近1年涨跌幅高达137.32%'。"
+      }
+    ]
+  },
+  {
+    "type": "NewsFeedItem",
+    "description": "信息流条目，用于展示'看点情报'等资讯内容。",
+    "category": "资讯",
+    "slots": ["source", "title", "tag"],
+    "constraints": [
+      {
+        "field": "source",
+        "type": "string",
+        "required": false,
+        "maxLength": 20,
+        "description": "资讯的来源机构或作者，例如 '北京分行财富工作室'。"
+      },
+      {
+        "field": "title",
+        "type": "string",
+        "required": true,
+        "maxLength": 30,
+        "description": "资讯的核心主标题。"
+      },
+      {
+        "field": "tag",
+        "type": "string",
+        "required": false,
+        "maxLength": 4,
+        "description": "资讯的特殊标签，例如 '直播' 或 '热门'。"
+      }
+    ]
+  },
+  {
+    "type": "KingKongGrid",
+    "description": "金刚区网格，用于展示4个固定位置的功能入口。此组件严格遵循“平铺插槽法”，所有插槽均为扁平化结构。",
+    "category": "导航",
+    "slots": ["icon1", "label1", "icon2", "label2", "icon3", "label3", "icon4", "label4"],
+    "constraints": [
+      {
+        "field": "icon1",
+        "type": "string",
+        "required": true,
+        "maxLength": 2,
+        "description": "第一个功能位的图标，建议使用单个 emoji。"
+      },
+      {
+        "field": "label1",
+        "type": "string",
+        "required": true,
+        "maxLength": 4,
+        "description": "第一个功能位的文本标签。"
+      },
+      {
+        "field": "icon2",
+        "type": "string",
+        "required": true,
+        "maxLength": 2,
+        "description": "第二个功能位的图标。"
+      },
+      {
+        "field": "label2",
+        "type": "string",
+        "required": true,
+        "maxLength": 4,
+        "description": "第二个功能位的文本标签。"
+      },
+      {
+        "field": "icon3",
+        "type": "string",
+        "required": true,
+        "maxLength": 2,
+        "description": "第三个功能位的图标。"
+      },
+      {
+        "field": "label3",
+        "type": "string",
+        "required": true,
+        "maxLength": 4,
+        "description": "第三个功能位的文本标签。"
+      },
+      {
+        "field": "icon4",
+        "type": "string",
+        "required": true,
+        "maxLength": 2,
+        "description": "第四个功能位的图标。"
+      },
+      {
+        "field": "label4",
+        "type": "string",
+        "required": true,
+        "maxLength": 4,
+        "description": "第四个功能位的文本标签。"
+      }
+    ]
+  }
+]

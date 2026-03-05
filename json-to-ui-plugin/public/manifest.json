@@ -1,0 +1,12 @@
+{
+  "name": "JSON to UI 生成器",
+  "description": "从 JSON 数据自动生成 UI 原型的 Penpot 插件",
+  "code": "plugin.js",
+  "icon": "icon.svg",
+  "permissions": [
+    "content:read",
+    "content:write",
+    "library:read",
+    "library:write"
+  ]
+}

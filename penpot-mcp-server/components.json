@@ -1,0 +1,997 @@
+[
+  {
+    "type": "ProductFeatureCard",
+    "description": "ProductFeatureCard 组件（从母版逆向提取）",
+    "category": "理财",
+    "slots": [
+      "featureTag",
+      "featureTitle",
+      "featureDesc"
+    ],
+    "constraints": [
+      {
+        "field": "featureTag",
+        "type": "string",
+        "required": true,
+        "maxLength": 4,
+        "description": "featureTag 字段，最大 4 字符"
+      },
+      {
+        "field": "featureTitle",
+        "type": "string",
+        "required": true,
+        "maxLength": 8,
+        "description": "featureTitle 字段，最大 8 字符"
+      },
+      {
+        "field": "featureDesc",
+        "type": "string",
+        "required": true,
+        "maxLength": 15,
+        "description": "featureDesc 字段，最大 15 字符"
+      }
+    ]
+  },
+  {
+    "type": "YieldRanking",
+    "description": "YieldRanking 组件（从母版逆向提取）",
+    "category": "通用",
+    "slots": [
+      "sectionTitle",
+      "detailLink",
+      "period1",
+      "fundChange1",
+      "avgChange1",
+      "rank1",
+      "rankDesc1",
+      "period2",
+      "fundChange2",
+      "avgChange2",
+      "rank2",
+      "rankDesc2",
+      "period3",
+      "fundChange3",
+      "avgChange3",
+      "rank3",
+      "rankDesc3"
+    ],
+    "constraints": [
+      {
+        "field": "sectionTitle",
+        "type": "string",
+        "required": true,
+        "maxLength": 3,
+        "description": "sectionTitle 字段，最大 3 字符"
+      },
+      {
+        "field": "detailLink",
+        "type": "string",
+        "required": true,
+        "maxLength": 2,
+        "description": "detailLink 字段，最大 2 字符"
+      },
+      {
+        "field": "period1",
+        "type": "string",
+        "required": true,
+        "maxLength": 2,
+        "description": "period1 字段，最大 2 字符"
+      },
+      {
+        "field": "fundChange1",
+        "type": "string",
+        "required": true,
+        "maxLength": 3,
+        "description": "fundChange1 字段，最大 3 字符"
+      },
+      {
+        "field": "avgChange1",
+        "type": "string",
+        "required": true,
+        "maxLength": 3,
+        "description": "avgChange1 字段，最大 3 字符"
+      },
+      {
+        "field": "rank1",
+        "type": "string",
+        "required": true,
+        "maxLength": 4,
+        "description": "rank1 字段，最大 4 字符"
+      },
+      {
+        "field": "rankDesc1",
+        "type": "string",
+        "required": true,
+        "maxLength": 2,
+        "description": "rankDesc1 字段，最大 2 字符"
+      },
+      {
+        "field": "period2",
+        "type": "string",
+        "required": true,
+        "maxLength": 2,
+        "description": "period2 字段，最大 2 字符"
+      },
+      {
+        "field": "fundChange2",
+        "type": "string",
+        "required": true,
+        "maxLength": 4,
+        "description": "fundChange2 字段，最大 4 字符"
+      },
+      {
+        "field": "avgChange2",
+        "type": "string",
+        "required": true,
+        "maxLength": 3,
+        "description": "avgChange2 字段，最大 3 字符"
+      },
+      {
+        "field": "rank2",
+        "type": "string",
+        "required": true,
+        "maxLength": 4,
+        "description": "rank2 字段，最大 4 字符"
+      },
+      {
+        "field": "rankDesc2",
+        "type": "string",
+        "required": true,
+        "maxLength": 2,
+        "description": "rankDesc2 字段，最大 2 字符"
+      },
+      {
+        "field": "period3",
+        "type": "string",
+        "required": true,
+        "maxLength": 2,
+        "description": "period3 字段，最大 2 字符"
+      },
+      {
+        "field": "fundChange3",
+        "type": "string",
+        "required": true,
+        "maxLength": 4,
+        "description": "fundChange3 字段，最大 4 字符"
+      },
+      {
+        "field": "avgChange3",
+        "type": "string",
+        "required": true,
+        "maxLength": 3,
+        "description": "avgChange3 字段，最大 3 字符"
+      },
+      {
+        "field": "rank3",
+        "type": "string",
+        "required": true,
+        "maxLength": 3,
+        "description": "rank3 字段，最大 3 字符"
+      },
+      {
+        "field": "rankDesc3",
+        "type": "string",
+        "required": true,
+        "maxLength": 2,
+        "description": "rankDesc3 字段，最大 2 字符"
+      }
+    ]
+  },
+  {
+    "type": "TransactionBottomBar",
+    "description": "TransactionBottomBar 组件（从母版逆向提取）",
+    "category": "通知",
+    "slots": [
+      "favoriteText",
+      "autoInvestText",
+      "buyText"
+    ],
+    "constraints": [
+      {
+        "field": "favoriteText",
+        "type": "string",
+        "required": true,
+        "maxLength": 2,
+        "description": "favoriteText 字段，最大 2 字符"
+      },
+      {
+        "field": "autoInvestText",
+        "type": "string",
+        "required": true,
+        "maxLength": 2,
+        "description": "autoInvestText 字段，最大 2 字符"
+      },
+      {
+        "field": "buyText",
+        "type": "string",
+        "required": true,
+        "maxLength": 2,
+        "description": "buyText 字段，最大 2 字符"
+      }
+    ]
+  },
+  {
+    "type": "ProductSubscriptionBasicInfo",
+    "description": "ProductSubscriptionBasicInfo 组件（从母版逆向提取）",
+    "category": "理财",
+    "slots": [
+      "productName",
+      "productCode",
+      "tag1",
+      "tag2",
+      "tag3",
+      "countdownStatusLabel",
+      "endDateLabel"
+    ],
+    "constraints": [
+      {
+        "field": "productName",
+        "type": "string",
+        "required": true,
+        "maxLength": 6,
+        "description": "产品名称，最大 6 字符"
+      },
+      {
+        "field": "productCode",
+        "type": "string",
+        "required": true,
+        "maxLength": 3,
+        "description": "productCode 字段，最大 3 字符"
+      },
+      {
+        "field": "tag1",
+        "type": "string",
+        "required": true,
+        "maxLength": 3,
+        "description": "tag1 字段，最大 3 字符"
+      },
+      {
+        "field": "tag2",
+        "type": "string",
+        "required": true,
+        "maxLength": 4,
+        "description": "tag2 字段，最大 4 字符"
+      },
+      {
+        "field": "tag3",
+        "type": "string",
+        "required": true,
+        "maxLength": 3,
+        "description": "tag3 字段，最大 3 字符"
+      },
+      {
+        "field": "countdownStatusLabel",
+        "type": "number",
+        "required": true,
+        "maxLength": 12,
+        "description": "countdownStatusLabel 字段，最大 12 字符"
+      },
+      {
+        "field": "endDateLabel",
+        "type": "string",
+        "required": true,
+        "maxLength": 12,
+        "description": "endDateLabel 字段，最大 12 字符"
+      }
+    ]
+  },
+  {
+    "type": "FundManager",
+    "description": "FundManager 组件（从母版逆向提取）",
+    "category": "基金",
+    "slots": [
+      "sectionTitle",
+      "moreIcon",
+      "managerName",
+      "managerTenure",
+      "totalAumLabel",
+      "totalAum",
+      "totalFundsLabel",
+      "totalFunds",
+      "promoTag",
+      "promoYield",
+      "promoYieldLabel",
+      "promoFundName",
+      "promoFundCode",
+      "promoFundType",
+      "promoFundRisk"
+    ],
+    "constraints": [
+      {
+        "field": "sectionTitle",
+        "type": "string",
+        "required": true,
+        "maxLength": 3,
+        "description": "sectionTitle 字段，最大 3 字符"
+      },
+      {
+        "field": "moreIcon",
+        "type": "string",
+        "required": true,
+        "maxLength": 2,
+        "description": "moreIcon 字段，最大 2 字符"
+      },
+      {
+        "field": "managerName",
+        "type": "string",
+        "required": true,
+        "maxLength": 2,
+        "description": "managerName 字段，最大 2 字符"
+      },
+      {
+        "field": "managerTenure",
+        "type": "string",
+        "required": true,
+        "maxLength": 13,
+        "description": "managerTenure 字段，最大 13 字符"
+      },
+      {
+        "field": "totalAumLabel",
+        "type": "number",
+        "required": true,
+        "maxLength": 7,
+        "description": "totalAumLabel 字段，最大 7 字符"
+      },
+      {
+        "field": "totalAum",
+        "type": "number",
+        "required": true,
+        "maxLength": 4,
+        "description": "totalAum 字段，最大 4 字符"
+      },
+      {
+        "field": "totalFundsLabel",
+        "type": "number",
+        "required": true,
+        "maxLength": 4,
+        "description": "totalFundsLabel 字段，最大 4 字符"
+      },
+      {
+        "field": "totalFunds",
+        "type": "number",
+        "required": true,
+        "maxLength": 2,
+        "description": "totalFunds 字段，最大 2 字符"
+      },
+      {
+        "field": "promoTag",
+        "type": "string",
+        "required": true,
+        "maxLength": 6,
+        "description": "promoTag 字段，最大 6 字符"
+      },
+      {
+        "field": "promoYield",
+        "type": "number",
+        "required": true,
+        "maxLength": 3,
+        "description": "promoYield 字段，最大 3 字符"
+      },
+      {
+        "field": "promoYieldLabel",
+        "type": "number",
+        "required": true,
+        "maxLength": 6,
+        "description": "promoYieldLabel 字段，最大 6 字符"
+      },
+      {
+        "field": "promoFundName",
+        "type": "string",
+        "required": true,
+        "maxLength": 7,
+        "description": "promoFundName 字段，最大 7 字符"
+      },
+      {
+        "field": "promoFundCode",
+        "type": "string",
+        "required": true,
+        "maxLength": 3,
+        "description": "promoFundCode 字段，最大 3 字符"
+      },
+      {
+        "field": "promoFundType",
+        "type": "string",
+        "required": true,
+        "maxLength": 3,
+        "description": "promoFundType 字段，最大 3 字符"
+      },
+      {
+        "field": "promoFundRisk",
+        "type": "boolean",
+        "required": true,
+        "maxLength": 4,
+        "description": "promoFundRisk 字段，最大 4 字符"
+      }
+    ]
+  },
+  {
+    "type": "FundHoldings",
+    "description": "FundHoldings 组件（从母版逆向提取）",
+    "category": "基金",
+    "slots": [
+      "sectionTitle",
+      "updateDateLink",
+      "tab1Name",
+      "tab2Name",
+      "assetName1",
+      "assetValue1",
+      "assetName2",
+      "assetValue2",
+      "assetName3",
+      "assetValue3",
+      "assetName4",
+      "assetValue4",
+      "chartCenterTitle",
+      "chartCenterSub",
+      "footerNote"
+    ],
+    "constraints": [
+      {
+        "field": "sectionTitle",
+        "type": "string",
+        "required": true,
+        "maxLength": 3,
+        "description": "sectionTitle 字段，最大 3 字符"
+      },
+      {
+        "field": "updateDateLink",
+        "type": "string",
+        "required": true,
+        "maxLength": 6,
+        "description": "updateDateLink 字段，最大 6 字符"
+      },
+      {
+        "field": "tab1Name",
+        "type": "string",
+        "required": true,
+        "maxLength": 4,
+        "description": "tab1Name 字段，最大 4 字符"
+      },
+      {
+        "field": "tab2Name",
+        "type": "string",
+        "required": true,
+        "maxLength": 4,
+        "description": "tab2Name 字段，最大 4 字符"
+      },
+      {
+        "field": "assetName1",
+        "type": "string",
+        "required": true,
+        "maxLength": 4,
+        "description": "assetName1 字段，最大 4 字符"
+      },
+      {
+        "field": "assetValue1",
+        "type": "string",
+        "required": true,
+        "maxLength": 3,
+        "description": "assetValue1 字段，最大 3 字符"
+      },
+      {
+        "field": "assetName2",
+        "type": "string",
+        "required": true,
+        "maxLength": 4,
+        "description": "assetName2 字段，最大 4 字符"
+      },
+      {
+        "field": "assetValue2",
+        "type": "string",
+        "required": true,
+        "maxLength": 2,
+        "description": "assetValue2 字段，最大 2 字符"
+      },
+      {
+        "field": "assetName3",
+        "type": "string",
+        "required": true,
+        "maxLength": 4,
+        "description": "assetName3 字段，最大 4 字符"
+      },
+      {
+        "field": "assetValue3",
+        "type": "string",
+        "required": true,
+        "maxLength": 2,
+        "description": "assetValue3 字段，最大 2 字符"
+      },
+      {
+        "field": "assetName4",
+        "type": "string",
+        "required": true,
+        "maxLength": 4,
+        "description": "assetName4 字段，最大 4 字符"
+      },
+      {
+        "field": "assetValue4",
+        "type": "string",
+        "required": true,
+        "maxLength": 3,
+        "description": "assetValue4 字段，最大 3 字符"
+      },
+      {
+        "field": "chartCenterTitle",
+        "type": "string",
+        "required": true,
+        "maxLength": 4,
+        "description": "chartCenterTitle 字段，最大 4 字符"
+      },
+      {
+        "field": "chartCenterSub",
+        "type": "string",
+        "required": true,
+        "maxLength": 6,
+        "description": "chartCenterSub 字段，最大 6 字符"
+      },
+      {
+        "field": "footerNote",
+        "type": "string",
+        "required": true,
+        "maxLength": 10,
+        "description": "footerNote 字段，最大 10 字符"
+      }
+    ]
+  },
+  {
+    "type": "ProductSearchFilter",
+    "description": "ProductSearchFilter 组件（从母版逆向提取）",
+    "category": "理财",
+    "slots": [
+      "searchPlaceholder",
+      "filterTag1",
+      "filterTag2",
+      "sortDropdown1",
+      "sortDropdown2"
+    ],
+    "constraints": [
+      {
+        "field": "searchPlaceholder",
+        "type": "string",
+        "required": true,
+        "maxLength": 6,
+        "description": "searchPlaceholder 字段，最大 6 字符"
+      },
+      {
+        "field": "filterTag1",
+        "type": "string",
+        "required": true,
+        "maxLength": 6,
+        "description": "filterTag1 字段，最大 6 字符"
+      },
+      {
+        "field": "filterTag2",
+        "type": "string",
+        "required": true,
+        "maxLength": 4,
+        "description": "filterTag2 字段，最大 4 字符"
+      },
+      {
+        "field": "sortDropdown1",
+        "type": "string",
+        "required": true,
+        "maxLength": 4,
+        "description": "sortDropdown1 字段，最大 4 字符"
+      },
+      {
+        "field": "sortDropdown2",
+        "type": "string",
+        "required": true,
+        "maxLength": 4,
+        "description": "sortDropdown2 字段，最大 4 字符"
+      }
+    ]
+  },
+  {
+    "type": "FundArchive",
+    "description": "FundArchive 组件（从母版逆向提取）",
+    "category": "基金",
+    "slots": [
+      "sectionTitle",
+      "moreLinkText",
+      "establishDateLabel",
+      "establishDate",
+      "netAssetLabel",
+      "netAsset",
+      "fundCompanyLabel",
+      "fundCompany"
+    ],
+    "constraints": [
+      {
+        "field": "sectionTitle",
+        "type": "string",
+        "required": true,
+        "maxLength": 3,
+        "description": "sectionTitle 字段，最大 3 字符"
+      },
+      {
+        "field": "moreLinkText",
+        "type": "string",
+        "required": true,
+        "maxLength": 10,
+        "description": "moreLinkText 字段，最大 10 字符"
+      },
+      {
+        "field": "establishDateLabel",
+        "type": "boolean",
+        "required": true,
+        "maxLength": 4,
+        "description": "establishDateLabel 字段，最大 4 字符"
+      },
+      {
+        "field": "establishDate",
+        "type": "boolean",
+        "required": true,
+        "maxLength": 5,
+        "description": "establishDate 字段，最大 5 字符"
+      },
+      {
+        "field": "netAssetLabel",
+        "type": "string",
+        "required": true,
+        "maxLength": 3,
+        "description": "netAssetLabel 字段，最大 3 字符"
+      },
+      {
+        "field": "netAsset",
+        "type": "string",
+        "required": true,
+        "maxLength": 3,
+        "description": "netAsset 字段，最大 3 字符"
+      },
+      {
+        "field": "fundCompanyLabel",
+        "type": "string",
+        "required": true,
+        "maxLength": 4,
+        "description": "fundCompanyLabel 字段，最大 4 字符"
+      },
+      {
+        "field": "fundCompany",
+        "type": "string",
+        "required": true,
+        "maxLength": 9,
+        "description": "fundCompany 字段，最大 9 字符"
+      }
+    ]
+  },
+  {
+    "type": "ProductOpenPeriodBasicInfo",
+    "description": "ProductOpenPeriodBasicInfo 组件（从母版逆向提取）",
+    "category": "理财",
+    "slots": [
+      "productName",
+      "productCode",
+      "tag1",
+      "tag2",
+      "tag3",
+      "dailyChange",
+      "dailyChangeLabel",
+      "netValue",
+      "netValueLabel",
+      "annualChange",
+      "annualChangeLabel"
+    ],
+    "constraints": [
+      {
+        "field": "productName",
+        "type": "string",
+        "required": true,
+        "maxLength": 6,
+        "description": "产品名称，最大 6 字符"
+      },
+      {
+        "field": "productCode",
+        "type": "string",
+        "required": true,
+        "maxLength": 3,
+        "description": "productCode 字段，最大 3 字符"
+      },
+      {
+        "field": "tag1",
+        "type": "string",
+        "required": true,
+        "maxLength": 3,
+        "description": "tag1 字段，最大 3 字符"
+      },
+      {
+        "field": "tag2",
+        "type": "string",
+        "required": true,
+        "maxLength": 4,
+        "description": "tag2 字段，最大 4 字符"
+      },
+      {
+        "field": "tag3",
+        "type": "string",
+        "required": true,
+        "maxLength": 3,
+        "description": "tag3 字段，最大 3 字符"
+      },
+      {
+        "field": "dailyChange",
+        "type": "string",
+        "required": true,
+        "maxLength": 3,
+        "description": "dailyChange 字段，最大 3 字符"
+      },
+      {
+        "field": "dailyChangeLabel",
+        "type": "string",
+        "required": true,
+        "maxLength": 6,
+        "description": "dailyChangeLabel 字段，最大 6 字符"
+      },
+      {
+        "field": "netValue",
+        "type": "string",
+        "required": true,
+        "maxLength": 2,
+        "description": "netValue 字段，最大 2 字符"
+      },
+      {
+        "field": "netValueLabel",
+        "type": "string",
+        "required": true,
+        "maxLength": 5,
+        "description": "netValueLabel 字段，最大 5 字符"
+      },
+      {
+        "field": "annualChange",
+        "type": "string",
+        "required": true,
+        "maxLength": 3,
+        "description": "annualChange 字段，最大 3 字符"
+      },
+      {
+        "field": "annualChangeLabel",
+        "type": "string",
+        "required": true,
+        "maxLength": 5,
+        "description": "annualChangeLabel 字段，最大 5 字符"
+      }
+    ]
+  },
+  {
+    "type": "FundListCard",
+    "description": "FundListCard 组件（从母版逆向提取）",
+    "category": "基金",
+    "slots": [
+      "fundName",
+      "fundCode",
+      "annualYield",
+      "yieldLabel",
+      "maxDrawdown",
+      "maxDrawdownLabel",
+      "sharpeRatio",
+      "sharpeRatioLabel",
+      "netValue",
+      "netValueLabel"
+    ],
+    "constraints": [
+      {
+        "field": "fundName",
+        "type": "string",
+        "required": true,
+        "maxLength": 11,
+        "description": "基金名称，最大 11 字符"
+      },
+      {
+        "field": "fundCode",
+        "type": "string",
+        "required": true,
+        "maxLength": 3,
+        "description": "基金代码，最大 3 字符"
+      },
+      {
+        "field": "annualYield",
+        "type": "number",
+        "required": true,
+        "maxLength": 3,
+        "description": "annualYield 字段，最大 3 字符"
+      },
+      {
+        "field": "yieldLabel",
+        "type": "number",
+        "required": true,
+        "maxLength": 6,
+        "description": "收益标签，最大 6 字符"
+      },
+      {
+        "field": "maxDrawdown",
+        "type": "string",
+        "required": true,
+        "maxLength": 2,
+        "description": "maxDrawdown 字段，最大 2 字符"
+      },
+      {
+        "field": "maxDrawdownLabel",
+        "type": "string",
+        "required": true,
+        "maxLength": 4,
+        "description": "maxDrawdownLabel 字段，最大 4 字符"
+      },
+      {
+        "field": "sharpeRatio",
+        "type": "string",
+        "required": true,
+        "maxLength": 2,
+        "description": "sharpeRatio 字段，最大 2 字符"
+      },
+      {
+        "field": "sharpeRatioLabel",
+        "type": "string",
+        "required": true,
+        "maxLength": 4,
+        "description": "sharpeRatioLabel 字段，最大 4 字符"
+      },
+      {
+        "field": "netValue",
+        "type": "string",
+        "required": true,
+        "maxLength": 2,
+        "description": "netValue 字段，最大 2 字符"
+      },
+      {
+        "field": "netValueLabel",
+        "type": "string",
+        "required": true,
+        "maxLength": 4,
+        "description": "netValueLabel 字段，最大 4 字符"
+      }
+    ]
+  },
+  {
+    "type": "FundAnalysisIndicators",
+    "description": "FundAnalysisIndicators 组件（从母版逆向提取）",
+    "category": "基金",
+    "slots": [
+      "sectionTitle",
+      "detailLink",
+      "card1Title",
+      "card1Rank",
+      "card1Desc",
+      "card1Value",
+      "card2Title",
+      "card2Rank",
+      "card2Desc",
+      "card2Value",
+      "card3Title",
+      "card3Rank",
+      "card3Desc",
+      "card3Value",
+      "card4Title",
+      "card4Rank",
+      "card4Desc",
+      "card4Value"
+    ],
+    "constraints": [
+      {
+        "field": "sectionTitle",
+        "type": "string",
+        "required": true,
+        "maxLength": 5,
+        "description": "sectionTitle 字段，最大 5 字符"
+      },
+      {
+        "field": "detailLink",
+        "type": "string",
+        "required": true,
+        "maxLength": 6,
+        "description": "detailLink 字段，最大 6 字符"
+      },
+      {
+        "field": "card1Title",
+        "type": "string",
+        "required": true,
+        "maxLength": 5,
+        "description": "card1Title 字段，最大 5 字符"
+      },
+      {
+        "field": "card1Rank",
+        "type": "string",
+        "required": true,
+        "maxLength": 8,
+        "description": "card1Rank 字段，最大 8 字符"
+      },
+      {
+        "field": "card1Desc",
+        "type": "string",
+        "required": true,
+        "maxLength": 11,
+        "description": "card1Desc 字段，最大 11 字符"
+      },
+      {
+        "field": "card1Value",
+        "type": "string",
+        "required": true,
+        "maxLength": 4,
+        "description": "card1Value 字段，最大 4 字符"
+      },
+      {
+        "field": "card2Title",
+        "type": "string",
+        "required": true,
+        "maxLength": 5,
+        "description": "card2Title 字段，最大 5 字符"
+      },
+      {
+        "field": "card2Rank",
+        "type": "string",
+        "required": true,
+        "maxLength": 8,
+        "description": "card2Rank 字段，最大 8 字符"
+      },
+      {
+        "field": "card2Desc",
+        "type": "string",
+        "required": true,
+        "maxLength": 7,
+        "description": "card2Desc 字段，最大 7 字符"
+      },
+      {
+        "field": "card2Value",
+        "type": "string",
+        "required": true,
+        "maxLength": 3,
+        "description": "card2Value 字段，最大 3 字符"
+      },
+      {
+        "field": "card3Title",
+        "type": "string",
+        "required": true,
+        "maxLength": 4,
+        "description": "card3Title 字段，最大 4 字符"
+      },
+      {
+        "field": "card3Rank",
+        "type": "string",
+        "required": true,
+        "maxLength": 8,
+        "description": "card3Rank 字段，最大 8 字符"
+      },
+      {
+        "field": "card3Desc",
+        "type": "string",
+        "required": true,
+        "maxLength": 6,
+        "description": "card3Desc 字段，最大 6 字符"
+      },
+      {
+        "field": "card3Value",
+        "type": "string",
+        "required": true,
+        "maxLength": 3,
+        "description": "card3Value 字段，最大 3 字符"
+      },
+      {
+        "field": "card4Title",
+        "type": "string",
+        "required": true,
+        "maxLength": 4,
+        "description": "card4Title 字段，最大 4 字符"
+      },
+      {
+        "field": "card4Rank",
+        "type": "string",
+        "required": true,
+        "maxLength": 8,
+        "description": "card4Rank 字段，最大 8 字符"
+      },
+      {
+        "field": "card4Desc",
+        "type": "string",
+        "required": true,
+        "maxLength": 6,
+        "description": "card4Desc 字段，最大 6 字符"
+      },
+      {
+        "field": "card4Value",
+        "type": "string",
+        "required": true,
+        "maxLength": 2,
+        "description": "card4Value 字段，最大 2 字符"
+      }
+    ]
+  }
+]

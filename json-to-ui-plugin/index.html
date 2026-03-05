@@ -1,0 +1,2252 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src 'self' ws://localhost:* wss://localhost:* http://localhost:* https://localhost:* https://api.openai.com https://api.deepseek.com https://*.anthropic.com https://*.moonshot.cn https://*.dashscope.aliyuncs.com; img-src 'self' data:; style-src 'self' 'unsafe-inline';">
+    <title>散装勇者-智能投研引擎</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        color: #e0e0e0;
+        min-height: 100vh;
+      }
+
+      #app {
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .header {
+        text-align: center;
+        padding-bottom: 12px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .header h3 {
+        font-size: 16px;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 4px;
+      }
+
+      .header .subtitle {
+        font-size: 11px;
+        color: #888;
+      }
+
+      .status-card {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        padding: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .status-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .status-indicator {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+      }
+
+      .status-indicator.connected {
+        background: #52C41A;
+        box-shadow: 0 0 10px rgba(22, 163, 74, 0.5);
+      }
+
+      .status-indicator.disconnected {
+        background: #FF4D4F;
+        box-shadow: 0 0 10px rgba(220, 38, 38, 0.5);
+      }
+
+      .status-indicator.connecting {
+        background: #FAAD14;
+        box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+      }
+
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+      }
+
+      .status-text {
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .status-text.connected { color: #52C41A; }
+      .status-text.disconnected { color: #FF4D4F; }
+      .status-text.connecting { color: #FAAD14; }
+
+      .connection-info {
+        margin-top: 8px;
+        font-size: 11px;
+        color: #666;
+      }
+
+      .divider {
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+        margin: 4px 0;
+      }
+
+      .task-section {
+        flex: 1;
+      }
+
+      .section-title {
+        font-size: 12px;
+        color: #888;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .mode-badge {
+        background: linear-gradient(135deg, #1677FF, #4096FF);
+        color: #fff;
+        font-size: 10px;
+        padding: 2px 8px;
+        border-radius: 10px;
+        margin-left: auto;
+        text-transform: none;
+        letter-spacing: 0;
+      }
+
+      #task-list {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 8px;
+        padding: 12px;
+        min-height: 200px;
+        font-size: 13px;
+        color: #9ca3af;
+        line-height: 1.6;
+      }
+
+      .waiting {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 150px;
+        text-align: center;
+      }
+
+      .waiting-icon {
+        font-size: 32px;
+        margin-bottom: 12px;
+        opacity: 0.5;
+      }
+
+      .task-button {
+        width: 100%;
+        padding: 14px 16px;
+        background: linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(59, 130, 246, 0.2));
+        border: 1px solid rgba(124, 58, 237, 0.3);
+        border-radius: 10px;
+        color: #fff;
+        font-size: 13px;
+        font-weight: 500;
+        text-align: left;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 10px;
+      }
+
+      .task-button:hover:not(:disabled) {
+        background: linear-gradient(135deg, rgba(124, 58, 237, 0.4), rgba(59, 130, 246, 0.4));
+        border-color: rgba(124, 58, 237, 0.6);
+        transform: translateX(4px);
+      }
+
+      .task-button.executing {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(59, 130, 246, 0.2));
+        border-color: rgba(59, 130, 246, 0.5);
+      }
+
+      .task-button.completed {
+        background: linear-gradient(135deg, rgba(22, 163, 74, 0.2), rgba(22, 163, 74, 0.1));
+        border-color: rgba(22, 163, 74, 0.4);
+      }
+
+      .task-button.error {
+        background: linear-gradient(135deg, rgba(220, 38, 38, 0.2), rgba(220, 38, 38, 0.1));
+        border-color: rgba(220, 38, 38, 0.4);
+      }
+
+      .task-icon {
+        font-size: 18px;
+        width: 28px;
+        text-align: center;
+      }
+
+      .task-info {
+        flex: 1;
+      }
+
+      .task-name {
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+
+      .task-meta {
+        font-size: 11px;
+        color: #888;
+        display: flex;
+        gap: 12px;
+      }
+
+      .task-status-icon {
+        font-size: 16px;
+        margin-left: auto;
+      }
+
+      .instruction-card {
+        background: rgba(251, 191, 36, 0.1);
+        border: 1px solid rgba(251, 191, 36, 0.3);
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 12px;
+        font-size: 11px;
+        color: #FAAD14;
+      }
+
+      .stats-row {
+        display: flex;
+        gap: 12px;
+        margin-top: 12px;
+      }
+
+      .stat-item {
+        flex: 1;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 8px;
+        padding: 12px;
+        text-align: center;
+      }
+
+      .stat-value {
+        font-size: 20px;
+        font-weight: 700;
+        color: #fff;
+      }
+
+      .stat-label {
+        font-size: 10px;
+        color: #666;
+        text-transform: uppercase;
+        margin-top: 4px;
+      }
+
+      .log-section {
+        margin-top: 12px;
+      }
+
+      #log-list {
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 6px;
+        padding: 12px;
+        max-height: 100px;
+        overflow-y: auto;
+        font-family: Monaco, Menlo, monospace;
+        font-size: 10px;
+        color: #6b7280;
+      }
+
+      .log-item {
+        padding: 2px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      .log-time {
+        color: #4b5563;
+        margin-right: 8px;
+      }
+
+      .clear-btn {
+        width: 100%;
+        padding: 10px;
+        margin-top: 12px;
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        border-radius: 6px;
+        color: #FF7875;
+        font-size: 12px;
+        cursor: pointer;
+      }
+
+      .clear-btn:hover {
+        background: rgba(239, 68, 68, 0.2);
+        border-color: rgba(239, 68, 68, 0.5);
+      }
+
+      .mode-switcher {
+        display: flex;
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 8px;
+        padding: 4px;
+        gap: 4px;
+      }
+
+      .mode-btn {
+        flex: 1;
+        padding: 10px 12px;
+        border: none;
+        background: transparent;
+        color: #888;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+      }
+
+      .mode-btn:hover {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      .mode-btn.active {
+        background: linear-gradient(135deg, #1677FF, #4096FF);
+        color: #fff;
+        box-shadow: 0 2px 8px rgba(22, 119, 255, 0.3);
+      }
+
+      .mode-panel {
+        display: none;
+      }
+
+      .mode-panel.active {
+        display: block;
+      }
+
+      .manual-textarea {
+        width: 100%;
+        height: 150px;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 12px;
+        color: #e0e0e0;
+        font-family: Monaco, Menlo, monospace;
+        font-size: 11px;
+        resize: vertical;
+        margin-bottom: 12px;
+      }
+
+      .manual-textarea::placeholder {
+        color: #666;
+      }
+
+      .btn-group {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+
+      .btn-primary {
+        flex: 1;
+        background: linear-gradient(135deg, #1677FF, #4096FF);
+        color: white;
+        padding: 10px;
+        border-radius: 6px;
+        border: none;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 12px;
+      }
+
+      .btn-secondary {
+        background: rgba(255, 255, 255, 0.1);
+        color: #888;
+        padding: 10px 14px;
+        border-radius: 6px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        cursor: pointer;
+        font-size: 12px;
+      }
+
+      .btn-danger {
+        background: rgba(239, 68, 68, 0.1);
+        color: #FF7875;
+        padding: 10px 14px;
+        border-radius: 6px;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        cursor: pointer;
+        font-size: 12px;
+      }
+
+      .parse-status {
+        padding: 10px 12px;
+        border-radius: 6px;
+        margin-bottom: 12px;
+        font-size: 12px;
+        display: none;
+      }
+
+      .parse-status.success {
+        background: rgba(22, 163, 74, 0.15);
+        border: 1px solid rgba(22, 163, 74, 0.3);
+        color: #52C41A;
+        display: block;
+      }
+
+      .parse-status.error {
+        background: rgba(220, 38, 38, 0.15);
+        border: 1px solid rgba(220, 38, 38, 0.3);
+        color: #FF4D4F;
+        display: block;
+      }
+
+      /* ==================== 手动生成模式样式 ==================== */
+      .config-section {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        overflow: hidden;
+      }
+
+      .config-header {
+        display: flex;
+        align-items: center;
+        padding: 12px 16px;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+
+      .config-header:hover {
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      .config-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: #e0e0e0;
+        flex: 1;
+      }
+
+      .config-status {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #FF4D4F;
+        margin-right: 8px;
+      }
+
+      .config-status.configured {
+        background: #52C41A;
+      }
+
+      .config-toggle-icon {
+        font-size: 10px;
+        color: #888;
+        transition: transform 0.3s;
+      }
+
+      .config-toggle-icon.open {
+        transform: rotate(180deg);
+      }
+
+      .config-content {
+        display: none;
+        padding: 0 16px 16px;
+      }
+
+      .config-content.open {
+        display: block;
+      }
+
+      .config-field {
+        margin-bottom: 12px;
+      }
+
+      .config-field label {
+        display: block;
+        font-size: 11px;
+        color: #888;
+        margin-bottom: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .config-field input {
+        width: 100%;
+        padding: 10px 12px;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 6px;
+        color: #e0e0e0;
+        font-size: 12px;
+        transition: border-color 0.2s;
+      }
+
+      .config-field input:focus {
+        outline: none;
+        border-color: #1677FF;
+      }
+
+      .config-field input::placeholder {
+        color: #555;
+      }
+
+      .api-key-wrapper {
+        display: flex;
+        gap: 8px;
+      }
+
+      .api-key-wrapper input {
+        flex: 1;
+      }
+
+      .toggle-visibility {
+        padding: 8px 12px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+      }
+
+      .toggle-visibility:hover {
+        background: rgba(255, 255, 255, 0.15);
+      }
+
+      .btn-save-config {
+        width: 100%;
+        padding: 10px;
+        background: linear-gradient(135deg, #52C41A, #389E0D);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .btn-save-config:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(82, 196, 26, 0.3);
+      }
+
+      .prompt-textarea {
+        width: 100%;
+        height: 180px;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 14px;
+        color: #e0e0e0;
+        font-size: 13px;
+        line-height: 1.6;
+        resize: vertical;
+        margin-bottom: 12px;
+      }
+
+      .prompt-textarea:focus {
+        outline: none;
+        border-color: #1677FF;
+      }
+
+      .prompt-textarea::placeholder {
+        color: #555;
+      }
+
+      .btn-generate {
+        position: relative;
+        overflow: hidden;
+      }
+
+      .btn-generate.loading {
+        pointer-events: none;
+        opacity: 0.8;
+      }
+
+      .btn-generate.loading::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        animation: loading-slide 1.5s infinite;
+      }
+
+      @keyframes loading-slide {
+        0% { left: -100%; }
+        100% { left: 100%; }
+      }
+
+      .generate-status {
+        padding: 12px 14px;
+        border-radius: 8px;
+        margin-bottom: 12px;
+        font-size: 12px;
+        display: none;
+      }
+
+      .generate-status.success {
+        background: rgba(22, 163, 74, 0.15);
+        border: 1px solid rgba(22, 163, 74, 0.3);
+        color: #52C41A;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .generate-status.error {
+        background: rgba(220, 38, 38, 0.15);
+        border: 1px solid rgba(220, 38, 38, 0.3);
+        color: #FF4D4F;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .generate-status.loading {
+        background: rgba(22, 119, 255, 0.15);
+        border: 1px solid rgba(22, 119, 255, 0.3);
+        color: #1677FF;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .generate-status .spinner {
+        width: 14px;
+        height: 14px;
+        border: 2px solid currentColor;
+        border-top-color: transparent;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+
+      #manualTaskCount {
+        background: linear-gradient(135deg, #7c3aed, #3b82f6);
+      }
+
+      #manualTaskCount.has-tasks {
+        background: linear-gradient(135deg, #52C41A, #389E0D);
+      }
+
+      /* 角色配置相关样式 */
+      .config-row {
+        display: flex;
+        gap: 12px;
+      }
+
+      .config-field.half {
+        flex: 1;
+      }
+
+      .role-select {
+        width: 100%;
+        padding: 10px 12px;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 6px;
+        color: #e0e0e0;
+        font-size: 12px;
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+      }
+
+      .role-select:focus {
+        outline: none;
+        border-color: #1677FF;
+      }
+
+      .role-select option {
+        background: #1a1a2e;
+        color: #e0e0e0;
+      }
+
+      .prompt-textarea.small {
+        height: 120px;
+        font-size: 11px;
+      }
+
+      .prompt-preview {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 6px;
+        padding: 10px 12px;
+        margin-top: 8px;
+      }
+
+      .prompt-preview-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 11px;
+        color: #888;
+        margin-bottom: 8px;
+      }
+
+      .btn-expand {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+        color: #888;
+        font-size: 10px;
+        padding: 4px 8px;
+        cursor: pointer;
+      }
+
+      .btn-expand:hover {
+        color: #fff;
+        border-color: rgba(255, 255, 255, 0.3);
+      }
+
+      .prompt-preview-content {
+        font-size: 10px;
+        color: #666;
+        line-height: 1.5;
+        max-height: 60px;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+        white-space: pre-wrap;
+      }
+
+      .prompt-preview-content.expanded {
+        max-height: 400px;
+        overflow-y: auto;
+        color: #888;
+      }
+
+      #currentRoleBadge {
+        background: linear-gradient(135deg, #7c3aed, #3b82f6);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div class="header">
+        <h3>🛡️ 散装勇者-智能投研引擎</h3>
+        <div class="subtitle" id="modeSubtitle">MCP 托管模式 · 半自动任务收件箱</div>
+      </div>
+
+      <div class="mode-switcher">
+        <button class="mode-btn active" id="btnMCPMode">📡 MCP 托管</button>
+        <button class="mode-btn" id="btnManualMode">🤖 手动生成</button>
+      </div>
+
+      <div class="mode-panel active" id="panelMCP">
+      <div class="status-card">
+        <div class="status-row">
+          <div class="status-indicator disconnected" id="statusDot"></div>
+          <div>
+            <div class="status-text disconnected" id="statusText">未连接 MCP 基站</div>
+            <div class="connection-info" id="connectionInfo">等待连接到 ws://localhost:8080</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="task-section">
+        <div class="section-title">
+          渲染任务收件箱
+          <span class="mode-badge">手动执行模式</span>
+        </div>
+
+        <button id="btn-sync" style="background: #52C41A; color: white; width: 100%; margin-bottom: 12px; padding: 10px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; font-size: 13px;">
+          🔄 扫描画布资产并同步至 MCP
+        </button>
+
+        <div class="instruction-card" id="instructionCard" style="display: none;">
+          <strong>📋 任务已就绪</strong>
+          <div>点击下方任务按钮执行渲染</div>
+        </div>
+
+        <div id="task-list">
+          <div class="waiting">
+            <div class="waiting-icon">📡</div>
+            <div>等待大模型通过 MCP 下发渲染指令...</div>
+          </div>
+        </div>
+
+        <div class="stats-row" id="statsRow" style="display: none;">
+          <div class="stat-item">
+            <div class="stat-value" id="totalTasks">0</div>
+            <div class="stat-label">总任务</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="completedTasks" style="color: #52C41A;">0</div>
+            <div class="stat-label">已完成</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="pendingTasks" style="color: #FAAD14;">0</div>
+            <div class="stat-label">待执行</div>
+          </div>
+        </div>
+
+        <button class="clear-btn" id="clearBtn" style="display: none;">
+          🗑️ 清空所有任务
+        </button>
+      </div>
+
+      <div class="log-section">
+        <div class="section-title">执行日志</div>
+        <div id="log-list">
+          <div class="log-item"><span class="log-time">[--:--:--]</span>系统初始化中...</div>
+        </div>
+      </div>
+      </div>
+
+      <div class="mode-panel" id="panelManual">
+        <!-- ==================== AI 配置区（可折叠）==================== -->
+        <div class="config-section">
+          <div class="config-header" id="configToggle">
+            <span class="config-title">⚙️ AI 配置</span>
+            <span class="config-status" id="configStatusDot"></span>
+            <span class="config-toggle-icon" id="configToggleIcon">▼</span>
+          </div>
+          <div class="config-content" id="configContent">
+            <div class="config-row">
+              <div class="config-field half">
+                <label>API Base URL</label>
+                <input type="text" id="manualApiBaseUrl" placeholder="https://api.openai.com/v1" />
+              </div>
+              <div class="config-field half">
+                <label>模型名称</label>
+                <input type="text" id="manualModelName" placeholder="gpt-4o / claude-3-5-sonnet" />
+              </div>
+            </div>
+            <div class="config-field">
+              <label>API Key</label>
+              <div class="api-key-wrapper">
+                <input type="password" id="manualApiKey" placeholder="sk-..." />
+                <button class="toggle-visibility" id="toggleApiKeyVisibility">👁️</button>
+              </div>
+            </div>
+            <div class="config-field">
+              <label>Agent 角色</label>
+              <select id="manualRoleSelect" class="role-select">
+                <option value="architect">🏢 后台架构师 - B端管理系统</option>
+                <option value="designer">🎨 UI 设计师 - 移动端原型</option>
+                <option value="pm">💰 金融产品经理 - 金融业务页面</option>
+                <option value="custom">✏️ 自定义角色 - 自定义提示词</option>
+              </select>
+            </div>
+            <div class="config-field" id="customPromptField" style="display: none;">
+              <label>自定义 System Prompt</label>
+              <textarea id="customSystemPrompt" class="prompt-textarea small" placeholder="输入自定义的 System Prompt...&#10;&#10;提示：需要指定 JSON 输出格式为 { &quot;tasks&quot;: [...] }"></textarea>
+            </div>
+            <div class="config-field prompt-preview" id="promptPreview">
+              <div class="prompt-preview-header">
+                <span>当前角色提示词预览</span>
+                <button class="btn-expand" id="btnExpandPrompt">展开</button>
+              </div>
+              <div class="prompt-preview-content" id="promptPreviewContent"></div>
+            </div>
+            <button class="btn-save-config" id="btnSaveConfig">💾 保存配置</button>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- ==================== 需求输入区 ==================== -->
+        <div class="task-section">
+          <div class="section-title">
+            需求文档 / PRD
+            <span class="mode-badge" id="currentRoleBadge">后台架构师</span>
+          </div>
+
+          <textarea id="manualPromptInput" class="prompt-textarea" placeholder="请粘贴 PRD 或需求文档...&#10;&#10;例如：&#10;设计一个基金交易页面，要求：&#10;1. 顶部展示用户资产信息（总资产、昨日收益、累计收益）&#10;2. 中间是基金信息卡片（基金名称、持有金额、收益率）&#10;3. 底部有买入金额输入框、交易密码输入框&#10;4. 最下面是确认买入按钮"></textarea>
+
+          <div class="btn-group">
+            <button id="btnGeneratePrototype" class="btn-primary btn-generate">🚀 生成原型</button>
+            <button id="btnLoadPromptExample" class="btn-secondary">📋 示例</button>
+            <button id="btnClearPrompt" class="btn-danger">🗑️ 清空</button>
+          </div>
+
+          <div id="generateStatus" class="parse-status"></div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- ==================== 生成的任务列表 ==================== -->
+        <div class="task-section">
+          <div class="section-title">
+            生成的任务
+            <span class="mode-badge" id="manualTaskCount">0 个任务</span>
+          </div>
+
+          <div id="manualTaskList">
+            <div class="waiting" style="text-align: center; padding: 30px; color: #666;">
+              <div style="font-size: 24px; margin-bottom: 8px;">📝</div>
+              <div>输入需求后点击"生成原型"</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="log-section">
+          <div class="section-title">执行日志</div>
+          <div id="manual-log-list">
+            <div class="log-item"><span class="log-time">[--:--:--]</span>手动生成模式就绪</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <script>
+      var statusDot = document.getElementById('statusDot');
+      var statusText = document.getElementById('statusText');
+      var connectionInfo = document.getElementById('connectionInfo');
+      var taskList = document.getElementById('task-list');
+      var statsRow = document.getElementById('statsRow');
+      var totalTasksEl = document.getElementById('totalTasks');
+      var completedTasksEl = document.getElementById('completedTasks');
+      var pendingTasksEl = document.getElementById('pendingTasks');
+      var logList = document.getElementById('log-list');
+      var instructionCard = document.getElementById('instructionCard');
+      var btnSync = document.getElementById('btn-sync');
+      var clearBtn = document.getElementById('clearBtn');
+
+      var ws = null;
+      var taskQueue = [];
+      var stats = { total: 0, completed: 0, pending: 0 };
+      var executedTasks = new Set();
+      var batchCounter = 0;
+      var globalTaskIndex = 0;
+
+      var SYNC_BUTTON_STATES = {
+        idle: { text: '🔄 扫描画布资产并同步至 MCP', background: '#52C41A', disabled: false },
+        scanning: { text: '⏳ 正在扫描物理画板...', background: '#FAAD14', disabled: true },
+        success: { text: '✅ 资产库已成功注入大模型！', background: '#4096FF', disabled: true },
+        error: { text: '❌ 同步失败，请重试', background: '#FF4D4F', disabled: false }
+      };
+
+      function setSyncButtonState(state) {
+        var config = SYNC_BUTTON_STATES[state];
+        if (config && btnSync) {
+          btnSync.textContent = config.text;
+          btnSync.style.background = config.background;
+          btnSync.disabled = config.disabled;
+        }
+      }
+
+      btnSync.addEventListener('click', function() {
+        log('🔄 开始扫描画布母版资产...');
+        setSyncButtonState('scanning');
+        parent.postMessage({ type: 'export-components' }, '*');
+        setTimeout(function() {
+          if (btnSync.disabled && btnSync.textContent.indexOf('扫描') >= 0) {
+            setSyncButtonState('error');
+            log('⚠️ 扫描超时，请检查画板是否有母版');
+            setTimeout(function() { setSyncButtonState('idle'); }, 3000);
+          }
+        }, 10000);
+      });
+
+      clearBtn.addEventListener('click', function() {
+        taskList.innerHTML = '<div class="waiting"><div class="waiting-icon">📡</div><div>等待大模型通过 MCP 下发渲染指令...</div></div>';
+        executedTasks.clear();
+        taskQueue = [];
+        batchCounter = 0;
+        globalTaskIndex = 0;
+        stats = { total: 0, completed: 0, pending: 0 };
+        instructionCard.style.display = 'none';
+        statsRow.style.display = 'none';
+        clearBtn.style.display = 'none';
+        log('🗑️ 已清空所有任务');
+      });
+
+      function log(message) {
+        var now = new Date();
+        var time = now.toTimeString().split(' ')[0];
+        var logItem = document.createElement('div');
+        logItem.className = 'log-item';
+        var timeSpan = document.createElement('span');
+        timeSpan.className = 'log-time';
+        timeSpan.textContent = '[' + time + ']';
+        logItem.appendChild(timeSpan);
+        logItem.appendChild(document.createTextNode(message));
+        logList.appendChild(logItem);
+        logList.scrollTop = logList.scrollHeight;
+        while (logList.children.length > 50) {
+          logList.removeChild(logList.firstChild);
+        }
+        console.log('[UI] ' + message);
+      }
+
+      function updateStatus(status, text, info) {
+        statusDot.className = 'status-indicator ' + status;
+        statusText.className = 'status-text ' + status;
+        statusText.textContent = text;
+        connectionInfo.textContent = info || '';
+      }
+
+      function updateStats() {
+        totalTasksEl.textContent = stats.total;
+        completedTasksEl.textContent = stats.completed;
+        pendingTasksEl.textContent = stats.pending;
+        statsRow.style.display = 'flex';
+        clearBtn.style.display = taskQueue.length > 0 ? 'block' : 'none';
+      }
+
+      function appendTaskBatch(tasks) {
+        if (taskList.querySelector('.waiting')) {
+          taskList.innerHTML = '';
+        }
+        instructionCard.style.display = 'block';
+        batchCounter++;
+
+        tasks.forEach(function(task, localIndex) {
+          var taskIndex = globalTaskIndex++;
+          var icon = task.action === 'create_masters' ? '🧩' : '📱';
+          var actionLabel = task.action === 'create_masters' ? '创建母版' : '渲染页面';
+          var metaInfo = '';
+          if (task.action === 'create_masters' && task.data && task.data.components) {
+            metaInfo = task.data.components.length + ' 个组件';
+          } else if (task.action === 'render_page' && task.data && task.data.pageName) {
+            metaInfo = '页面: ' + task.data.pageName;
+          }
+
+          var button = document.createElement('button');
+          button.className = 'task-button';
+          button.id = 'task-btn-' + taskIndex;
+
+          var iconSpan = document.createElement('span');
+          iconSpan.className = 'task-icon';
+          iconSpan.textContent = icon;
+
+          var infoDiv = document.createElement('div');
+          infoDiv.className = 'task-info';
+
+          var nameDiv = document.createElement('div');
+          nameDiv.className = 'task-name';
+          nameDiv.textContent = '▶️ ' + (task.taskName || '任务 ' + (localIndex + 1));
+
+          var metaDiv = document.createElement('div');
+          metaDiv.className = 'task-meta';
+          metaDiv.textContent = actionLabel + ' · ' + metaInfo;
+
+          infoDiv.appendChild(nameDiv);
+          infoDiv.appendChild(metaDiv);
+
+          var statusSpan = document.createElement('span');
+          statusSpan.className = 'task-status-icon';
+          statusSpan.id = 'status-icon-' + taskIndex;
+
+          button.appendChild(iconSpan);
+          button.appendChild(infoDiv);
+          button.appendChild(statusSpan);
+
+          button.addEventListener('click', function() {
+            executeTask(taskIndex, task);
+          });
+
+          taskList.appendChild(button);
+          taskQueue.push(Object.assign({}, task, { globalIndex: taskIndex, batch: batchCounter }));
+        });
+
+        stats.total = taskQueue.length;
+        stats.pending = taskQueue.length - executedTasks.size;
+        updateStats();
+        log('📋 批次 #' + batchCounter + '：追加 ' + tasks.length + ' 个任务，累计 ' + taskQueue.length + ' 个');
+      }
+
+      function executeTask(globalIndex, task) {
+        var button = document.getElementById('task-btn-' + globalIndex);
+        var statusIcon = document.getElementById('status-icon-' + globalIndex);
+
+        if (executedTasks.has(globalIndex)) {
+          log('⚠️ 任务已执行，跳过');
+          return;
+        }
+
+        if (!button) {
+          log('❌ 找不到任务按钮');
+          return;
+        }
+
+        button.classList.add('executing');
+        button.disabled = true;
+        if (statusIcon) statusIcon.textContent = '⏳';
+
+        log('▶️ 执行任务: ' + (task.taskName || '任务 ' + (globalIndex + 1)));
+
+        parent.postMessage({
+          type: 'execute-task',
+          action: task.action,
+          taskData: task.data,
+          taskId: 'task-' + globalIndex,
+          taskIndex: globalIndex
+        }, '*');
+
+        executedTasks.add(globalIndex);
+        stats.pending = taskQueue.length - executedTasks.size;
+        updateStats();
+
+        setTimeout(function() {
+          if (button && button.classList.contains('executing')) {
+            markTaskSuccess(globalIndex);
+          }
+        }, 1000);
+      }
+
+      function markTaskSuccess(globalIndex) {
+        var button = document.getElementById('task-btn-' + globalIndex);
+        var statusIcon = document.getElementById('status-icon-' + globalIndex);
+
+        if (button) {
+          button.classList.remove('executing');
+          button.classList.add('completed');
+          button.disabled = true;
+          var taskName = button.querySelector('.task-name');
+          if (taskName) {
+            taskName.textContent = taskName.textContent.replace('▶️', '✅');
+          }
+        }
+        if (statusIcon) statusIcon.textContent = '✅';
+
+        stats.completed++;
+        stats.pending = taskQueue.length - executedTasks.size;
+        updateStats();
+        log('✅ 任务执行成功');
+        checkAllCompleted();
+      }
+
+      function markTaskError(globalIndex, errorMessage) {
+        var button = document.getElementById('task-btn-' + globalIndex);
+        var statusIcon = document.getElementById('status-icon-' + globalIndex);
+
+        if (button) {
+          button.classList.remove('executing');
+          button.classList.add('error');
+          button.disabled = false;
+          var taskName = button.querySelector('.task-name');
+          if (taskName) {
+            taskName.textContent = taskName.textContent.replace('▶️', '❌').replace('✅', '❌');
+          }
+        }
+        if (statusIcon) statusIcon.textContent = '❌';
+
+        executedTasks.delete(globalIndex);
+        stats.pending = taskQueue.length - executedTasks.size;
+        updateStats();
+        log('❌ 任务执行失败: ' + errorMessage);
+      }
+
+      function checkAllCompleted() {
+        if (executedTasks.size === taskQueue.length && taskQueue.length > 0) {
+          var msg = document.createElement('div');
+          msg.style.cssText = 'padding: 14px; background: rgba(22, 163, 74, 0.15); border-radius: 8px; color: #52C41A; text-align: center; font-weight: 600; margin-top: 12px; border: 1px solid rgba(22, 163, 74, 0.3);';
+          msg.textContent = '🎉 所有任务执行完成！成功 ' + stats.completed + '/' + stats.total;
+          taskList.appendChild(msg);
+          log('📤 所有批次渲染完成');
+          sendToMCP({ type: 'batch-complete', stats: stats });
+        }
+      }
+
+      function connectWebSocket() {
+        log('正在连接 MCP 基站...');
+        updateStatus('connecting', '🟡 正在连接...', '连接中...');
+
+        try {
+          ws = new WebSocket('ws://localhost:8080');
+
+          ws.onopen = function() {
+            log('✅ 已连接到 MCP 基站');
+            updateStatus('connected', '🟢 已连接 MCP 基站', 'ws://localhost:8080 · 半自动模式就绪');
+          };
+
+          ws.onmessage = function(event) {
+            try {
+              var data = JSON.parse(event.data);
+              log('收到消息: ' + data.type);
+              handleMCPMessage(data);
+            } catch (e) {
+              log('❌ 解析消息失败: ' + e.message);
+            }
+          };
+
+          ws.onclose = function() {
+            log('⚠️ 连接断开，3秒后重连...');
+            updateStatus('disconnected', '🔴 连接断开', '正在尝试重连...');
+            setTimeout(connectWebSocket, 3000);
+          };
+
+          ws.onerror = function() {
+            log('❌ WebSocket 错误');
+            updateStatus('disconnected', '🔴 连接失败', '请确认 MCP Server 已启动');
+          };
+
+        } catch (e) {
+          log('❌ 创建连接失败: ' + e.message);
+          setTimeout(connectWebSocket, 3000);
+        }
+      }
+
+      function handleMCPMessage(data) {
+        if (data.type === 'connected') {
+          log('MCP 基站确认连接');
+          return;
+        }
+
+        if (data.type === 'render-tasks' && data.payload) {
+          var tasks = data.payload;
+          log('📥 收到渲染指令，共 ' + tasks.length + ' 个任务');
+          appendTaskBatch(tasks);
+        }
+
+        // ⭐ 处理组件同步响应（MCP Server 确认收到组件库）
+        if (data.type === 'sync-components-response') {
+          if (data.success) {
+            log('✅ MCP 基站已同步组件库: ' + data.message);
+            setSyncButtonState('success');
+          } else {
+            log('❌ MCP 组件同步失败: ' + data.message);
+            setSyncButtonState('error');
+          }
+          setTimeout(function() { setSyncButtonState('idle'); }, 3000);
+          return;
+        }
+
+        // 处理 Agent 分析结果（手动模式）
+        if (data.type === 'agent-analyze-result') {
+          handleAgentAnalysisResult(data);
+        }
+      }
+
+      function sendToMCP(message) {
+        if (ws && ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify(message));
+        }
+      }
+
+      window.addEventListener('message', function(event) {
+        var message = event.data;
+        if (!message || !message.type) return;
+
+        log('📨 插件消息: ' + message.type);
+
+        if (message.type === 'components-exported') {
+          var payload = message.payload;
+          if (payload && Object.keys(payload).length > 0) {
+            var componentCount = Object.keys(payload).length;
+            log('📊 扫描完成，提取 ' + componentCount + ' 个组件');
+
+            // ⭐ 本地缓存组件 Schema（用于手动模式 Prompt 注入）
+            cachedComponentSchema = payload;
+            try {
+              localStorage.setItem(COMPONENT_SCHEMA_KEY, JSON.stringify(payload));
+              log('💾 组件库已缓存到本地，手动模式将自动注入');
+            } catch (e) {
+              console.warn('组件库缓存失败:', e);
+            }
+
+            // ⭐ 同步到 MCP Server（实时打通信息孤岛）
+            if (ws && ws.readyState === WebSocket.OPEN) {
+              var componentsArray = Object.values(payload);
+              ws.send(JSON.stringify({ type: 'sync-components', payload: componentsArray }));
+              log('📤 组件字典正在同步至 MCP 基站...');
+              // 注意：成功/失败状态由 handleMCPMessage 中的 sync-components-response 更新
+            } else {
+              log('⚠️ WebSocket 未连接，仅本地缓存（手动模式可用，MCP 模式将使用默认组件库）');
+              setSyncButtonState('success');
+              setTimeout(function() { setSyncButtonState('idle'); }, 3000);
+            }
+          } else {
+            log('⚠️ 未扫描到任何组件，请检查画板是否有 Master_* 母版');
+            setSyncButtonState('error');
+            setTimeout(function() { setSyncButtonState('idle'); }, 3000);
+          }
+          return;
+        }
+
+        if (message.type === 'export-error') {
+          log('❌ 组件扫描失败: ' + message.error);
+          setSyncButtonState('error');
+          setTimeout(function() { setSyncButtonState('idle'); }, 3000);
+          return;
+        }
+
+        var taskIndex = message.taskIndex !== undefined ? message.taskIndex :
+                        parseInt((message.taskId || '').replace('task-', '') || '0');
+
+        if (message.type === 'task-complete') {
+          markTaskSuccess(taskIndex);
+          sendToMCP({ type: 'task-complete', taskId: message.taskId });
+        }
+
+        if (message.type === 'task-error') {
+          markTaskError(taskIndex, message.error);
+          sendToMCP({ type: 'task-error', taskId: message.taskId, message: message.error });
+        }
+
+        if (message.type === 'layout-error') {
+          markTaskError(taskIndex, '布局校验失败: ' + message.error);
+          sendToMCP({ type: 'layout-error', taskId: message.taskId, message: message.error });
+        }
+      });
+
+      // ==================== 模式切换 ====================
+      var currentMode = 'mcp';
+      var btnMCPMode = document.getElementById('btnMCPMode');
+      var btnManualMode = document.getElementById('btnManualMode');
+      var panelMCP = document.getElementById('panelMCP');
+      var panelManual = document.getElementById('panelManual');
+      var modeSubtitle = document.getElementById('modeSubtitle');
+
+      function switchMode(mode) {
+        currentMode = mode;
+        if (mode === 'mcp') {
+          btnMCPMode.classList.add('active');
+          btnManualMode.classList.remove('active');
+          panelMCP.classList.add('active');
+          panelManual.classList.remove('active');
+          modeSubtitle.textContent = 'MCP 托管模式 · 半自动任务收件箱';
+        } else {
+          btnMCPMode.classList.remove('active');
+          btnManualMode.classList.add('active');
+          panelMCP.classList.remove('active');
+          panelManual.classList.add('active');
+          modeSubtitle.textContent = '手动生成模式 · 粘贴需求 AI 生成原型';
+        }
+        log('切换到 ' + (mode === 'mcp' ? 'MCP 托管' : '手动输入') + ' 模式');
+      }
+
+      btnMCPMode.addEventListener('click', function() { switchMode('mcp'); });
+      btnManualMode.addEventListener('click', function() { switchMode('manual'); });
+
+      // ==================== 手动生成模式 ====================
+      // ⭐ 已简化：删除独立队列，统一使用主管道
+      var manualTaskListEl = document.getElementById('manualTaskList');
+      var manualLogList = document.getElementById('manual-log-list');
+      var manualTaskCountEl = document.getElementById('manualTaskCount');
+      var generateStatusEl = document.getElementById('generateStatus');
+      var currentRoleBadgeEl = document.getElementById('currentRoleBadge');
+
+      // 配置相关 DOM
+      var configToggleEl = document.getElementById('configToggle');
+      var configContentEl = document.getElementById('configContent');
+      var configToggleIconEl = document.getElementById('configToggleIcon');
+      var configStatusDotEl = document.getElementById('configStatusDot');
+      var manualApiBaseUrlEl = document.getElementById('manualApiBaseUrl');
+      var manualApiKeyEl = document.getElementById('manualApiKey');
+      var manualModelNameEl = document.getElementById('manualModelName');
+      var toggleApiKeyVisibilityEl = document.getElementById('toggleApiKeyVisibility');
+      var btnSaveConfigEl = document.getElementById('btnSaveConfig');
+
+      // 角色相关 DOM
+      var manualRoleSelectEl = document.getElementById('manualRoleSelect');
+      var customPromptFieldEl = document.getElementById('customPromptField');
+      var customSystemPromptEl = document.getElementById('customSystemPrompt');
+      var promptPreviewEl = document.getElementById('promptPreview');
+      var promptPreviewContentEl = document.getElementById('promptPreviewContent');
+      var btnExpandPromptEl = document.getElementById('btnExpandPrompt');
+
+      // 输入相关 DOM
+      var manualPromptInputEl = document.getElementById('manualPromptInput');
+      var btnGeneratePrototypeEl = document.getElementById('btnGeneratePrototype');
+      var btnLoadPromptExampleEl = document.getElementById('btnLoadPromptExample');
+      var btnClearPromptEl = document.getElementById('btnClearPrompt');
+
+      // 存储 Key
+      var MANUAL_CONFIG_KEY = 'penpot-manual-api-config';
+      var COMPONENT_SCHEMA_KEY = 'penpot-cached-components';
+
+      // ⭐ 缓存的组件库 Schema（用于手动模式 Prompt 注入）
+      var cachedComponentSchema = null;
+
+      // =====================================================
+      // ⭐ 自动加载组件库（启动时执行）
+      // =====================================================
+
+      /**
+       * 从静态文件加载组件库
+       * 优先级：fetch 静态文件 > localStorage 缓存 > 空对象
+       */
+      async function loadComponentsLibrary() {
+        try {
+          // 1. 尝试从静态文件加载
+          var response = await fetch('./components.json');
+          if (response.ok) {
+            var components = await response.json();
+            // 转换数组格式为对象格式（以 type 为 key）
+            var schema = {};
+            if (Array.isArray(components)) {
+              components.forEach(function(comp) {
+                if (comp.type) {
+                  schema[comp.type] = comp;
+                }
+              });
+            } else {
+              schema = components;
+            }
+            cachedComponentSchema = schema;
+            // 同时更新 localStorage 缓存
+            try {
+              localStorage.setItem(COMPONENT_SCHEMA_KEY, JSON.stringify(schema));
+            } catch (e) {}
+            console.log('[组件库] ✅ 从静态文件加载成功，共 ' + Object.keys(schema).length + ' 个组件');
+            return schema;
+          }
+        } catch (e) {
+          console.warn('[组件库] 静态文件加载失败，尝试 localStorage:', e);
+        }
+
+        // 2. 尝试从 localStorage 加载
+        try {
+          var stored = localStorage.getItem(COMPONENT_SCHEMA_KEY);
+          if (stored) {
+            var cachedSchema = JSON.parse(stored);
+            cachedComponentSchema = cachedSchema;
+            console.log('[组件库] ✅ 从 localStorage 加载成功，共 ' + Object.keys(cachedSchema).length + ' 个组件');
+            return cachedSchema;
+          }
+        } catch (e) {
+          console.warn('[组件库] localStorage 加载失败:', e);
+        }
+
+        // 3. 返回空对象
+        console.warn('[组件库] ⚠️ 未找到组件库，AI 将使用兜底模式');
+        return {};
+      }
+
+      // 启动时立即加载组件库
+      loadComponentsLibrary();
+
+      // ==================== 角色配置 ====================
+      var ROLES = {
+        architect: {
+          id: 'architect',
+          name: '后台架构师',
+          systemPrompt: `你是一位经验丰富的 B 端中后台系统架构师。你的核心任务是将用户提供的【业务需求】转化为直接用于 Penpot 插件渲染的【结构化 JSON 数据】。
+
+【业务设计原则】
+1. B 端管理后台重效率与表单录入
+2. 页面结构通常为：顶部大标题 -> 密集的参数输入框 -> 底部保存按钮
+
+【极其严格的 JSON 规范】
+你输出的必须是纯 JSON 格式（不要带 \`\`\`json 等 Markdown 标记）。
+数据结构必须是：
+{
+  "tasks": [
+    {
+      "taskName": "任务名称",
+      "action": "create_masters" 或 "render_page",
+      "data": { ... }
+    }
+  ]
+}
+
+【当前引擎支持的组件类型】
+- 基础: {"type": "Title", "text": "标题"}, {"type": "Text", "content": "文本"}, {"type": "Divider"}
+- 表单: {"type": "Input", "label": "字段名", "placeholder": "提示"}, {"type": "Button", "text": "按钮"}
+- 金融卡片: {"type": "AssetHeader", "userName": "用户", "totalAssets": "10000", "incomeToday": "+10", "incomeTotal": "+100"}
+- 基金卡片: {"type": "FundCard", "fundName": "基金名", "holdingAmount": "1000", "incomeToday": "+10", "incomeRate": "+1%"}
+
+【任务类型说明】
+- create_masters: 创建母版组件，data.components 是组件数组
+- render_page: 渲染页面，data.pageName 是页面名，data.elements 是元素数组
+
+【你的执行动作】
+阅读用户需求，直接输出合法的 JSON 字符串，不输出任何其他解释性文字。`
+        },
+        designer: {
+          id: 'designer',
+          name: 'UI 设计师',
+          systemPrompt: `你是一位专业的 UI 设计师。你的任务是将用户需求转化为美观的移动端 UI 原型 JSON。
+
+【设计原则】
+1. 移动端优先，注重用户体验
+2. 层次分明，重点突出
+3. 合理使用金融卡片组件
+
+【JSON 格式要求】
+输出纯 JSON，不要带 Markdown 标记：
+{
+  "tasks": [
+    {
+      "taskName": "任务名称",
+      "action": "create_masters" 或 "render_page",
+      "data": { ... }
+    }
+  ]
+}
+
+【支持的组件】
+Title, Text, Divider, Input, Button, AssetHeader, FundCard
+
+【任务类型说明】
+- create_masters: 创建母版组件
+- render_page: 渲染页面
+
+直接输出 JSON，不要解释。`
+        },
+        pm: {
+          id: 'pm',
+          name: '金融产品经理',
+          systemPrompt: `你是一位资深的金融产品经理。你的任务是将金融业务需求转化为 UI 原型 JSON。
+
+【金融设计原则】
+1. 突出核心数据（收益率、总资产）
+2. 红涨绿跌：收益为正用红色，收益为负用绿色
+3. 金额输入场景需要键盘组件
+
+【JSON 格式】
+输出纯 JSON：
+{
+  "tasks": [
+    {
+      "taskName": "任务名称",
+      "action": "create_masters" 或 "render_page",
+      "data": { ... }
+    }
+  ]
+}
+
+【支持的金融组件】
+- AssetHeader: 个人资产头部
+- FundCard: 基金持仓卡片
+- ProductCard: 理财产品卡片
+
+【任务类型说明】
+- create_masters: 创建母版组件
+- render_page: 渲染页面
+
+直接输出 JSON。`
+        },
+        custom: {
+          id: 'custom',
+          name: '自定义角色',
+          systemPrompt: ''
+        }
+      };
+
+      // 示例需求
+      var EXAMPLE_PROMPT = `设计一个基金交易页面，要求：
+1. 顶部展示用户资产信息（总资产、昨日收益、累计收益）
+2. 中间是基金信息卡片（基金名称、持有金额、收益率）
+3. 底部有买入金额输入框、交易密码输入框
+4. 最下面是确认买入按钮`;
+
+      // =====================================================
+      // ⭐ 组件库压缩与 Prompt 注入
+      // =====================================================
+
+      /**
+       * 压缩组件 Schema 为 AI 友好的极简格式
+       * 去除冗余信息，只保留 type、描述、字段约束
+       */
+      function compressComponentSchema(schema) {
+        if (!schema) return [];
+
+        var components = Array.isArray(schema) ? schema : Object.values(schema);
+        var compressed = [];
+
+        components.forEach(function(comp) {
+          if (!comp || !comp.type) return;
+
+          var fields = {};
+          if (comp.constraints && Array.isArray(comp.constraints)) {
+            comp.constraints.forEach(function(c) {
+              var fieldDesc = c.type || 'string';
+              if (c.required) fieldDesc += '(必填)';
+              else fieldDesc += '(可选)';
+              if (c.maxLength) fieldDesc += ',≤' + c.maxLength + '字';
+              if (c.pattern) {
+                // 简化 pattern 为可读描述
+                if (c.pattern.includes('+-') || c.pattern.includes('+-')) {
+                  fieldDesc += ',带正负号';
+                } else if (c.pattern.includes('%')) {
+                  fieldDesc += ',百分比';
+                } else if (c.pattern.includes('\\d{6}')) {
+                  fieldDesc += ',6位数字';
+                }
+              }
+              fields[c.field] = fieldDesc;
+            });
+          }
+
+          compressed.push({
+            type: comp.type,
+            desc: (comp.description || '').substring(0, 50), // 截断过长描述
+            fields: fields
+          });
+        });
+
+        return compressed;
+      }
+
+      /**
+       * 构建组件库上下文 Prompt 片段
+       * 将压缩后的组件库注入到 System Prompt 中
+       */
+      function buildComponentContextPrompt() {
+        // 尝试从缓存或 localStorage 加载组件库
+        var schema = cachedComponentSchema;
+        if (!schema || Object.keys(schema).length === 0) {
+          try {
+            var stored = localStorage.getItem(COMPONENT_SCHEMA_KEY);
+            if (stored) {
+              schema = JSON.parse(stored);
+              cachedComponentSchema = schema; // 回填内存缓存
+            }
+          } catch (e) {
+            console.warn('加载缓存的组件库失败:', e);
+          }
+        }
+
+        if (!schema || Object.keys(schema).length === 0) {
+          // 没有组件库，返回空字符串（使用默认 Prompt）
+          console.warn('[Prompt 构建] ⚠️ 组件库为空，AI 将使用默认组件');
+          return '';
+        }
+
+        var compressed = compressComponentSchema(schema);
+        if (compressed.length === 0) {
+          console.warn('[Prompt 构建] ⚠️ 组件库压缩后为空');
+          return '';
+        }
+
+        console.log('[Prompt 构建] ✅ 注入组件库，共 ' + compressed.length + ' 个组件');
+
+        // 构建组件列表字符串
+        var componentList = compressed.map(function(c) {
+          var fieldStr = Object.entries(c.fields)
+            .map(function(entry) { return entry[0] + ': ' + entry[1]; })
+            .join(', ');
+          return '  - ' + c.type + ': ' + c.desc + '\n    字段: { ' + fieldStr + ' }';
+        }).join('\n');
+
+        // 构建完整的组件库上下文
+        var contextPrompt = '\n\n【⚠️ 极其重要：可用组件库】\n' +
+          '你必须且只能使用以下列表中的组件类型 (type) 来构建 UI。\n' +
+          '如果需求中的功能没有对应组件，请使用基础组件 (Title, Text, Divider, Input, Button) 组合替代。\n' +
+          '绝不允许自行捏造不存在的组件名称！\n\n' +
+          '可用组件列表 (共 ' + compressed.length + ' 个):\n' + componentList + '\n\n' +
+          '【⚠️ 极其重要：组件字段格式】\n' +
+          '组件的字段必须直接放在组件对象顶层，禁止使用 fields 包裹！\n\n' +
+          '❌ 错误格式（禁止）:\n' +
+          '{ "type": "FundCard", "fields": { "fundName": "基金名", "annualYield": 12.5 } }\n\n' +
+          '✅ 正确格式（必须）:\n' +
+          '{ "type": "FundCard", "fundName": "基金名", "annualYield": 12.5 }\n\n' +
+          '【JSON 输出格式示例】\n' +
+          '{\n' +
+          '  "tasks": [\n' +
+          '    {\n' +
+          '      "taskName": "创建母版",\n' +
+          '      "action": "create_masters",\n' +
+          '      "data": {\n' +
+          '        "components": [\n' +
+          '          { "type": "FundCard", "fundName": "华夏成长", "annualYield": 12.5, "fundCode": "000001" },\n' +
+          '          { "type": "AssetHeader", "userName": "张三", "totalAssets": "100000", "incomeToday": "+100" }\n' +
+          '        ]\n' +
+          '      }\n' +
+          '    },\n' +
+          '    {\n' +
+          '      "taskName": "渲染页面",\n' +
+          '      "action": "render_page",\n' +
+          '      "data": {\n' +
+          '        "pageName": "基金列表页",\n' +
+          '        "elements": [\n' +
+          '          { "type": "Title", "text": "我的基金" },\n' +
+          '          { "type": "FundCard", "fundName": "华夏成长", "annualYield": 12.5 }\n' +
+          '        ]\n' +
+          '      }\n' +
+          '    }\n' +
+          '  ]\n' +
+          '}\n';
+
+        return contextPrompt;
+      }
+
+      // 获取当前选中的系统提示词（⭐ 已增强：自动注入组件库上下文）
+      function getCurrentSystemPrompt() {
+        var roleId = manualRoleSelectEl.value;
+        var basePrompt;
+        if (roleId === 'custom') {
+          basePrompt = customSystemPromptEl.value.trim() || ROLES.architect.systemPrompt;
+        } else {
+          basePrompt = ROLES[roleId] ? ROLES[roleId].systemPrompt : ROLES.architect.systemPrompt;
+        }
+
+        // ⭐ 动态注入组件库上下文
+        var componentContext = buildComponentContextPrompt();
+        var fullPrompt = basePrompt;
+        if (componentContext) {
+          fullPrompt = basePrompt + componentContext;
+        }
+
+        // ⭐ 添加 JSON 完整性提示
+        var jsonIntegrityHint = '\n\n【极其重要】你必须确保输出的 JSON 结构完整闭合！所有 { 必须有对应的 }，所有 [ 必须有对应的 ]，所有字符串必须用双引号闭合。输出被截断将导致系统无法解析。';
+
+        return fullPrompt + jsonIntegrityHint;
+      }
+
+      // 更新提示词预览
+      function updatePromptPreview() {
+        var roleId = manualRoleSelectEl.value;
+        var role = ROLES[roleId];
+        var prompt = roleId === 'custom' ? customSystemPromptEl.value : (role ? role.systemPrompt : '');
+
+        // 截取前 200 字符作为预览
+        var preview = prompt.substring(0, 200);
+        if (prompt.length > 200) preview += '...';
+        promptPreviewContentEl.textContent = preview;
+
+        // 更新角色徽章
+        currentRoleBadgeEl.textContent = role ? role.name : '未知角色';
+      }
+
+      // 处理角色选择变化
+      function handleRoleChange() {
+        var roleId = manualRoleSelectEl.value;
+        if (roleId === 'custom') {
+          customPromptFieldEl.style.display = 'block';
+        } else {
+          customPromptFieldEl.style.display = 'none';
+        }
+        updatePromptPreview();
+        manualLog('🔄 切换到角色: ' + (ROLES[roleId] ? ROLES[roleId].name : roleId));
+      }
+
+      function manualLog(message) {
+        var now = new Date();
+        var time = now.toTimeString().split(' ')[0];
+        var logItem = document.createElement('div');
+        logItem.className = 'log-item';
+        logItem.innerHTML = '<span class="log-time">[' + time + ']</span>' + message;
+        manualLogList.appendChild(logItem);
+        manualLogList.scrollTop = manualLogList.scrollHeight;
+        while (manualLogList.children.length > 50) {
+          manualLogList.removeChild(manualLogList.firstChild);
+        }
+        console.log('[Manual] ' + message);
+      }
+
+      function showGenerateStatus(type, message) {
+        generateStatusEl.className = 'generate-status ' + type;
+        if (type === 'loading') {
+          generateStatusEl.innerHTML = '<div class="spinner"></div><span>' + message + '</span>';
+        } else if (type === 'success') {
+          generateStatusEl.innerHTML = '✅ ' + message;
+        } else if (type === 'error') {
+          generateStatusEl.innerHTML = '❌ ' + message;
+        }
+      }
+
+      function hideGenerateStatus() {
+        generateStatusEl.className = 'generate-status';
+      }
+
+      function updateManualTaskCount(count) {
+        manualTaskCountEl.textContent = count + ' 个任务';
+        if (count > 0) {
+          manualTaskCountEl.classList.add('has-tasks');
+        } else {
+          manualTaskCountEl.classList.remove('has-tasks');
+        }
+      }
+
+      // ==================== 配置管理 ====================
+
+      function loadManualConfig() {
+        try {
+          var stored = localStorage.getItem(MANUAL_CONFIG_KEY);
+          if (stored) {
+            return JSON.parse(stored);
+          }
+        } catch (e) {
+          console.error('加载配置失败:', e);
+        }
+        return { baseUrl: '', apiKey: '', modelName: '', roleId: 'architect', customPrompt: '' };
+      }
+
+      function saveManualConfig(config) {
+        try {
+          localStorage.setItem(MANUAL_CONFIG_KEY, JSON.stringify(config));
+          updateConfigStatus(config);
+          manualLog('✅ 配置已保存');
+        } catch (e) {
+          console.error('保存配置失败:', e);
+          manualLog('❌ 配置保存失败');
+        }
+      }
+
+      function isManualConfigured(config) {
+        return !!(config.baseUrl && config.apiKey && config.modelName);
+      }
+
+      function updateConfigStatus(config) {
+        if (isManualConfigured(config)) {
+          configStatusDotEl.classList.add('configured');
+        } else {
+          configStatusDotEl.classList.remove('configured');
+        }
+      }
+
+      function renderManualConfig() {
+        var config = loadManualConfig();
+        manualApiBaseUrlEl.value = config.baseUrl;
+        manualApiKeyEl.value = config.apiKey;
+        manualModelNameEl.value = config.modelName;
+
+        // 加载角色配置
+        if (config.roleId) {
+          manualRoleSelectEl.value = config.roleId;
+          if (config.roleId === 'custom' && config.customPrompt) {
+            customSystemPromptEl.value = config.customPrompt;
+          }
+        }
+
+        handleRoleChange();
+        updateConfigStatus(config);
+      }
+
+      // ==================== 大模型调用 ====================
+
+      async function callLLMApi(prompt, systemPrompt, config) {
+        var url = config.baseUrl.replace(/\/$/, '') + '/chat/completions';
+
+        var response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + config.apiKey
+          },
+          body: JSON.stringify({
+            model: config.modelName,
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: prompt }
+            ],
+            temperature: 0.7,
+            max_tokens: 8192  // 增大 token 限制，避免输出截断
+          })
+        });
+
+        if (!response.ok) {
+          var errorText = await response.text();
+          throw new Error('API 请求失败 (' + response.status + '): ' + errorText);
+        }
+
+        var data = await response.json();
+
+        if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+          throw new Error('API 返回数据格式异常');
+        }
+
+        return data.choices[0].message.content;
+      }
+
+      function cleanJSONString(raw) {
+        var cleanText = raw;
+
+        // 剔除 <think\> 标签
+        cleanText = cleanText.replace(/<think\>[\s\S]*?<\/think\>/g, '');
+
+        // 剔除 Markdown 代码块标记
+        cleanText = cleanText.replace(/```json\n?/gi, '');
+        cleanText = cleanText.replace(/```\n?/g, '');
+        cleanText = cleanText.trim();
+
+        // 精准截取 JSON
+        var firstBrace = cleanText.indexOf('{');
+        var lastBrace = cleanText.lastIndexOf('}');
+
+        if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+          cleanText = cleanText.substring(firstBrace, lastBrace + 1);
+        }
+
+        // 🔧 JSON 自动补全：尝试修复截断的 JSON
+        try {
+          JSON.parse(cleanText);
+        } catch (e) {
+          console.log('[🔧] JSON 解析失败，尝试自动补全...');
+          cleanText = attemptJSONRepair(cleanText);
+        }
+
+        return cleanText;
+      }
+
+      // 🔧 JSON 自动补全函数
+      function attemptJSONRepair(text) {
+        var openBraces = (text.match(/\{/g) || []).length;
+        var closeBraces = (text.match(/\}/g) || []).length;
+        var openBrackets = (text.match(/\[/g) || []).length;
+        var closeBrackets = (text.match(/\]/g) || []).length;
+
+        var repaired = text;
+
+        // 补全缺失的引号（字符串末尾）
+        // 简单策略：在 ] 或 } 前添加缺失的 "
+
+        // 补全缺失的括号
+        var missingBrackets = openBrackets - closeBrackets;
+        var missingBraces = openBraces - closeBraces;
+
+        // 先补全数组括号
+        for (var i = 0; i < missingBrackets; i++) {
+          repaired += ']';
+        }
+
+        // 再补全对象括号
+        for (var j = 0; j < missingBraces; j++) {
+          repaired += '}';
+        }
+
+        console.log('[🔧] 补全了 ' + missingBrackets + ' 个 ] 和 ' + missingBraces + ' 个 }');
+
+        // 验证修复后的 JSON
+        try {
+          JSON.parse(repaired);
+          console.log('[🔧] JSON 自动补全成功');
+          return repaired;
+        } catch (e) {
+          console.log('[🔧] JSON 自动补全失败，返回原文');
+          return text;
+        }
+      }
+
+      // ==================== 核心生成逻辑 ====================
+
+      async function handleGeneratePrototype() {
+        var prompt = manualPromptInputEl.value.trim();
+
+        if (!prompt) {
+          showGenerateStatus('error', '请输入需求描述');
+          return;
+        }
+
+        var config = loadManualConfig();
+        if (!isManualConfigured(config)) {
+          showGenerateStatus('error', '请先配置 API（点击展开 AI 配置）');
+          configContentEl.classList.add('open');
+          configToggleIconEl.classList.add('open');
+          return;
+        }
+
+        // 获取当前角色和系统提示词
+        var roleId = manualRoleSelectEl.value;
+        var systemPrompt = getCurrentSystemPrompt();
+        var roleName = ROLES[roleId] ? ROLES[roleId].name : roleId;
+
+        // 设置 Loading 状态
+        btnGeneratePrototypeEl.classList.add('loading');
+        btnGeneratePrototypeEl.textContent = '⏳ AI 思考中...';
+        showGenerateStatus('loading', '正在调用 ' + config.modelName + ' (' + roleName + ') 生成方案...');
+
+        manualLog('🚀 开始调用 AI 生成原型...');
+        manualLog('👤 角色: ' + roleName);
+        manualLog('📝 需求: ' + prompt.substring(0, 100) + (prompt.length > 100 ? '...' : ''));
+
+        try {
+          // 调用大模型
+          var rawResponse = await callLLMApi(prompt, systemPrompt, config);
+          manualLog('📥 收到 AI 响应');
+
+          // 清洗 JSON
+          var cleanedResponse = cleanJSONString(rawResponse);
+          console.log('【清洗后 JSON】:', cleanedResponse);
+
+          // 解析 JSON
+          var jsonData;
+          try {
+            jsonData = JSON.parse(cleanedResponse);
+          } catch (e) {
+            showGenerateStatus('error', 'AI 生成的 JSON 格式有误，请重试');
+            manualLog('❌ JSON 解析失败');
+            resetGenerateButton();
+            return;
+          }
+
+          if (!jsonData.tasks || !Array.isArray(jsonData.tasks)) {
+            showGenerateStatus('error', 'AI 生成的 JSON 缺少 tasks 数组');
+            manualLog('❌ JSON 格式错误：缺少 tasks 数组');
+            resetGenerateButton();
+            return;
+          }
+
+          // ⭐ 直接渲染任务列表，不再维护独立队列
+          renderManualTasks(jsonData.tasks);
+
+          showGenerateStatus('success', '生成成功！共 ' + jsonData.tasks.length + ' 个任务');
+          manualLog('✅ 生成成功，共 ' + jsonData.tasks.length + ' 个任务');
+          resetGenerateButton();
+
+        } catch (error) {
+          console.error('LLM 调用失败:', error);
+          showGenerateStatus('error', '调用失败: ' + error.message);
+          manualLog('❌ 调用失败: ' + error.message);
+          resetGenerateButton();
+        }
+      }
+
+      function resetGenerateButton() {
+        btnGeneratePrototypeEl.classList.remove('loading');
+        btnGeneratePrototypeEl.textContent = '🚀 生成原型';
+      }
+
+      function renderManualTasks(tasks) {
+        manualTaskListEl.innerHTML = '';
+        updateManualTaskCount(tasks.length);
+
+        tasks.forEach(function(task, index) {
+          // ⭐ 使用数组索引作为 taskId，不再维护独立队列
+          var taskId = 'manual-task-' + index;
+
+          var icon = task.action === 'create_masters' ? '🧩' : '📱';
+          var actionLabel = task.action === 'create_masters' ? '创建母版' : '渲染页面';
+          var metaInfo = '';
+          if (task.action === 'create_masters' && task.data && task.data.components) {
+            metaInfo = task.data.components.length + ' 个组件';
+          } else if (task.action === 'render_page' && task.data && task.data.pageName) {
+            metaInfo = '页面: ' + task.data.pageName;
+          }
+
+          var button = document.createElement('button');
+          button.className = 'task-button';
+          button.id = taskId;
+
+          var iconSpan = document.createElement('span');
+          iconSpan.className = 'task-icon';
+          iconSpan.textContent = icon;
+
+          var infoDiv = document.createElement('div');
+          infoDiv.className = 'task-info';
+
+          var nameDiv = document.createElement('div');
+          nameDiv.className = 'task-name';
+          nameDiv.textContent = '▶️ ' + (task.taskName || '任务 ' + (index + 1));
+
+          var metaDiv = document.createElement('div');
+          metaDiv.className = 'task-meta';
+          metaDiv.textContent = actionLabel + ' · ' + metaInfo;
+
+          infoDiv.appendChild(nameDiv);
+          infoDiv.appendChild(metaDiv);
+
+          var statusSpan = document.createElement('span');
+          statusSpan.className = 'task-status-icon';
+          statusSpan.id = 'manual-status-' + index;
+
+          button.appendChild(iconSpan);
+          button.appendChild(infoDiv);
+          button.appendChild(statusSpan);
+
+          // ⭐ 使用闭包保存 task 引用，直接发送到主管道
+          button.addEventListener('click', function() {
+            executeManualTask(taskId, task);
+          });
+
+          manualTaskListEl.appendChild(button);
+        });
+      }
+
+      /**
+       * ⭐ 统一任务执行管道
+       * 手动模式与 MCP 模式都通过 parent.postMessage 发送到 plugin.ts
+       */
+      function executeManualTask(taskId, task) {
+        var button = document.getElementById(taskId);
+        var index = parseInt(taskId.replace('manual-task-', ''));
+        var statusIcon = document.getElementById('manual-status-' + index);
+
+        // 检查按钮状态（替代 manualExecutedTasks）
+        if (button && button.disabled && button.classList.contains('completed')) {
+          manualLog('⚠️ 任务已执行，跳过');
+          return;
+        }
+
+        button.classList.add('executing');
+        button.disabled = true;
+        if (statusIcon) statusIcon.textContent = '⏳';
+
+        manualLog('▶️ 执行任务: ' + (task.taskName || '任务'));
+
+        // ⭐ 统一管道：发送到 plugin.ts 的 onMessage 监听器
+        parent.postMessage({
+          type: 'execute-task',
+          action: task.action,
+          taskData: task.data,
+          taskId: taskId,
+          taskIndex: index
+        }, '*');
+
+        // 超时兜底：如果 plugin.ts 没有响应，自动标记成功
+        setTimeout(function() {
+          if (button && button.classList.contains('executing')) {
+            markManualTaskSuccess(index);
+          }
+        }, 1500);
+      }
+
+      /**
+       * 统一状态更新函数：成功
+       */
+      function markManualTaskSuccess(taskIndex) {
+        var button = document.getElementById('manual-task-' + taskIndex);
+        var statusIcon = document.getElementById('manual-status-' + taskIndex);
+        if (button) {
+          button.classList.remove('executing');
+          button.classList.add('completed');
+          button.disabled = true;
+          var taskName = button.querySelector('.task-name');
+          if (taskName) taskName.textContent = taskName.textContent.replace('▶️', '✅');
+        }
+        if (statusIcon) statusIcon.textContent = '✅';
+        manualLog('✅ 任务执行成功');
+      }
+
+      /**
+       * 统一状态更新函数：失败
+       */
+      function markManualTaskError(taskIndex, errorMessage) {
+        var button = document.getElementById('manual-task-' + taskIndex);
+        var statusIcon = document.getElementById('manual-status-' + taskIndex);
+        if (button) {
+          button.classList.remove('executing');
+          button.classList.add('error');
+          button.disabled = false; // 允许重试
+          var taskName = button.querySelector('.task-name');
+          if (taskName) taskName.textContent = taskName.textContent.replace('▶️', '❌').replace('✅', '❌');
+        }
+        if (statusIcon) statusIcon.textContent = '❌';
+        manualLog('❌ 任务执行失败: ' + errorMessage);
+      }
+
+      function loadPromptExample() {
+        manualPromptInputEl.value = EXAMPLE_PROMPT;
+        showGenerateStatus('success', '示例需求已加载');
+        manualLog('📋 示例需求已加载');
+      }
+
+      function clearPromptInput() {
+        manualPromptInputEl.value = '';
+        hideGenerateStatus();
+        manualTaskListEl.innerHTML = '<div class="waiting" style="text-align: center; padding: 30px; color: #666;"><div style="font-size: 24px; margin-bottom: 8px;">📝</div><div>输入需求后点击"生成原型"</div></div>';
+        // ⭐ 已删除独立队列变量，只需更新 UI
+        updateManualTaskCount(0);
+        manualLog('🗑️ 已清空');
+      }
+
+      // ==================== 事件绑定 ====================
+
+      // 配置区折叠
+      configToggleEl.addEventListener('click', function() {
+        configContentEl.classList.toggle('open');
+        configToggleIconEl.classList.toggle('open');
+      });
+
+      // API Key 可见性切换
+      toggleApiKeyVisibilityEl.addEventListener('click', function() {
+        var isPassword = manualApiKeyEl.type === 'password';
+        manualApiKeyEl.type = isPassword ? 'text' : 'password';
+        toggleApiKeyVisibilityEl.textContent = isPassword ? '🙈' : '👁️';
+      });
+
+      // 保存配置
+      btnSaveConfigEl.addEventListener('click', function() {
+        var config = {
+          baseUrl: manualApiBaseUrlEl.value.trim().replace(/\/$/, ''),
+          apiKey: manualApiKeyEl.value.trim(),
+          modelName: manualModelNameEl.value.trim(),
+          roleId: manualRoleSelectEl.value,
+          customPrompt: customSystemPromptEl.value.trim()
+        };
+        if (!config.baseUrl || !config.apiKey || !config.modelName) {
+          showGenerateStatus('error', '请填写完整的 API 配置');
+          return;
+        }
+        saveManualConfig(config);
+        showGenerateStatus('success', '配置已保存（含角色设置）');
+      });
+
+      // 角色选择变化
+      manualRoleSelectEl.addEventListener('change', handleRoleChange);
+
+      // 自定义提示词变化时更新预览
+      customSystemPromptEl.addEventListener('input', updatePromptPreview);
+
+      // 提示词预览展开/收起
+      btnExpandPromptEl.addEventListener('click', function() {
+        var isExpanded = promptPreviewContentEl.classList.toggle('expanded');
+        btnExpandPromptEl.textContent = isExpanded ? '收起' : '展开';
+      });
+
+      // 生成原型按钮
+      btnGeneratePrototypeEl.addEventListener('click', handleGeneratePrototype);
+
+      // 加载示例按钮
+      btnLoadPromptExampleEl.addEventListener('click', loadPromptExample);
+
+      // 清空按钮
+      btnClearPromptEl.addEventListener('click', clearPromptInput);
+
+      // 快捷键：Ctrl/Cmd + Enter 生成
+      manualPromptInputEl.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+          handleGeneratePrototype();
+        }
+      });
+
+      // 监听手动模式任务结果
+      window.addEventListener('message', function(event) {
+        var message = event.data;
+        if (!message || !message.type) return;
+        if (!message.taskId || message.taskId.indexOf('manual-task-') !== 0) return;
+
+        var taskIndex = message.taskIndex !== undefined ? message.taskIndex :
+                        parseInt((message.taskId || '').replace('manual-task-', '') || 0);
+
+        if (message.type === 'task-complete') {
+          markManualTaskSuccess(taskIndex);
+        }
+        if (message.type === 'task-error') {
+          markManualTaskError(taskIndex, message.error);
+        }
+        if (message.type === 'layout-error') {
+          markManualTaskError(taskIndex, '布局校验失败: ' + message.error);
+        }
+      });
+
+      // ==================== 初始化 ====================
+
+      // 加载手动模式配置
+      renderManualConfig();
+
+      log('🚀 智能投研引擎启动（半自动模式）');
+      log('📋 等待 MCP 指令，支持多批次追加');
+      connectWebSocket();
+    </script>
+  </body>
+</html>
