@@ -25,6 +25,34 @@
 A tool that makes your product manager dreams come true — just describe the interface you want in natural language, and AI will generate a Penpot prototype for you! Yes, you no longer need to beg designers for low-fidelity prototypes (designers breathe a sigh of relief).
 
 ---
+## 🚀 The 8-Step Autonomous UI Workflow (8步 AI 自动化构建协议)
+
+Designed by **散装勇者 (The Assembled Knight)**, this workflow bridges high-end AI generation with open-source design ecosystems, achieving complete decoupling of visual presentation and business data.
+这套由**散装勇者**设计的 8 步协议，打通了顶尖 AI 生成能力与开源设计生态，实现了视觉表现与业务数据的深度解耦。
+
+1. **Agent Definition (协议定义)**: Initiate the specialized UI Automation Agent. It outputs a "Dual-Package": Clean Drawing Prompts + Hidden JSON Mapping Dictionary. / 启动协议 Agent，输出“绘图指令+暗箱字典”的双料包。
+2. **Multimodal Input (多模态输入)**: Feed the Agent with PRDs, wireframes, or screenshots to generate precise design instructions. / 通过多模态输入，让 Agent 产出高精度的设计逻辑。
+3. **AI Generation (视觉生产)**: Use Figma's AI engine to generate high-fidelity components based on the "Clean Prompts". / 利用 AI 引擎，根据“纯净指令”生成高保真组件。
+4. **Semantic Mapping (无痕替换)**: Apply our custom plugin to replace mock data with semantic slots (e.g., `[price]`) based on the JSON dictionary. / 通过自定义插件，将视觉稿中的假数据一键替换为语义化变量。
+5. **Universal Export (跨平台导出)**: Export the sanitized assets into the standard `.penpot` exchange format. / 将处理好的资产导出为标准的 Penpot 交换格式。
+6. **Master Creation (母版实例化)**: Import files into Penpot and batch-create Main Components to build the source of truth. / 在 Penpot 中导入并批量创建母版，建立唯一事实来源。
+7. **Asset Scanning (资产入库)**: **[CORE]** Run `penpot-copilot` to scan, standardize, and store these assets into the Penpot Library. / **[核心]** 运行 `penpot-copilot` 插件，实现资产的自动化扫描与入库。
+8. **Automated Prototyping (原型交付)**: Generate industry-compliant, interactive prototypes directly from the standardized library. / 调用标准化资产库，一键生成符合交付要求的交互原型。
+
+---
+
+## 🗺️ Dual-Track Roadmap (双轨演进计划)
+
+### 🛤️ Track 1: The Automation Bridge (自动化数据桥)
+* **Goal**: Eliminate manual file handling between platforms. 
+* **Focus**: Building a direct API connector to sync Figma AI outputs to Penpot libraries silently.
+* **目标**: 消除平台间的搬运磨损。开发直接的 API 连接器，实现资产从 AI 生成到入库的“静默同步”。
+
+### 🛤️ Track 2: Industry-Specific Logic (行业逻辑内置)
+* **Goal**: Pre-configure professional UI constraints for specific sectors (Finance, SaaS, etc.) into the Agent protocol.
+* **Vision**: A system where the PM inputs a business requirement, and the "Assembled Knight" engine automatically selects the right industry-standard components.
+* **目标**: 在协议中预置特定行业（如金融、SaaS 等）的专业 UI 约束。
+* **愿景**: PM 仅需输入业务逻辑，“散装勇者”引擎即可自动匹配并生成行业级标准原型。
 
 ## ⚠️ 免责声明 | Disclaimer
 
